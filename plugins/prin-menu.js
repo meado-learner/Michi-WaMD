@@ -20,7 +20,10 @@ let handler = async (m, { conn, usedPrefix }) => {
     for (let tag in menu) {
       txt += `${tag.toUpperCase()}\n`
       for (let plugin of menu[tag]) {
-        txt += `» ${usedPrefix}${plugin.help[0]}\n`
+        
+        for (let cmd of plugin.help) {
+          txt += `» ${usedPrefix}${cmd}\n`
+        }
       }
       txt += `\n`
     }
