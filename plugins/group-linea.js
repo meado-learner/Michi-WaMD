@@ -23,7 +23,7 @@ await m.reply(`⚠︎ Se ha producido un problema.\n> Usa *${usedPrefix}report* 
 }}
 
 handler.help = ["listonline"]
-handler.tags = ["group"]
+handler.tags = ["grupo"]
 handler.command = ["listonline", "online", "linea", "enlinea"]
 handler.group = true
 
