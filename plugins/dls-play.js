@@ -28,7 +28,7 @@ await conn.sendMessage(m.chat, {
 text: info,
 contextInfo: {
 externalAdReply: {
-title: title,
+title: '',
 body: `ꕤ API: ${audio.api}`,
 thumbnail: thumb,
 mediaType: 2,
@@ -41,7 +41,8 @@ sourceUrl: url
 await conn.sendMessage(m.chat, {
 audio: { url: audio.url },
 fileName: `${title}.mp3`,
-mimetype: 'audio/mpeg'
+mimetype: 'audio/mpeg',
+ptt: true
 }, { quoted: m })
 
 await m.react('✔️')
@@ -56,7 +57,7 @@ await conn.sendMessage(m.chat, {
 text: info,
 contextInfo: {
 externalAdReply: {
-title: title,
+title: '',
 body: `ꕤ API: ${video.api}`,
 thumbnail: thumb,
 mediaType: 2,
