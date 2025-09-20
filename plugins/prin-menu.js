@@ -22,7 +22,7 @@ let handler = async (m, { conn, usedPrefix }) => {
       txt += `> ➭ *✩ ${tag.toUpperCase()} ✩*\n`
       for (let plugin of menu[tag]) {
         for (let cmd of plugin.help) {
-          txt += `> » ${usedPrefix}${cmd}`
+          txt += `> ⟩ ${usedPrefix}${cmd}\n`
         }
       }
       txt += `\n`
