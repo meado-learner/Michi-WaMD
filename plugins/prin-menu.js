@@ -20,9 +20,8 @@ let handler = async (m, { conn, usedPrefix }) => {
     for (let tag in menu) {
       txt += `➭ *${tag.toUpperCase()}*\n`
       for (let plugin of menu[tag]) {
-        
         for (let cmd of plugin.help) {
-          txt += `> *_» ${usedPrefix}${cmd}_*`
+          txt += `> *_» ${usedPrefix}${cmd}_*\n`
         }
       }
       txt += `\n`
@@ -32,7 +31,17 @@ let handler = async (m, { conn, usedPrefix }) => {
       m.chat,
       {
         image: { url: global.michipg },
-        caption: txt
+        caption: txt,
+        contextInfo: {
+          externalAdReply: {
+            title: `› Menu de comandos`,
+            body: "",
+            thumbnailUrl: global.michipg,
+            sourceUrl: "https://whatsapp.com/channel/0029VaS0g4T1jQZ2VwVJCe0P", // pon tu link aquí
+            mediaType: 1,
+            renderLargerThumbnail: true
+          }
+        }
       },
       { quoted: m }
     )
