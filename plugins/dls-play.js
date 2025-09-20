@@ -1,59 +1,77 @@
-import yts from 'yt-search';
+const express = require('express');
+const fetch = require('node-fetch');
+const { apiKeyAuth } = require('../middleware/auth.js');
 
-const handler = async (m, { conn, text, usedPrefix, command }) => {
-  try {
-    if (!text?.trim()) return conn.reply(m.chat, `❀ Envía el nombre o link del vídeo para descargar.`, m);
-    await m.react('🕒');
+const router = express.Router();
 
-    const videoMatch = text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/|v\/))([a-zA-Z0-9_-]{11})/);
-    const query = videoMatch ? 'https://youtu.be/' + videoMatch[1] : text;
-    const search = await yts(query);
-    const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
+const headers = {
+    "accept": "*/*",
+    "accept-language": "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7",
+    "sec-ch-ua": "\"Not A(Brand\";v=\"8\", \"Chromium\";v=\"132\"",
+    "sec-ch-ua-mobile": "?1",
+    "sec-ch-ua-platform": "\"Android\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+    "Referer": "https://id.ytmp3.mobi/",
+    "Referrer-Policy": "strict-origin-when-cross-origin"
+};
 
-    if (!result) throw 'ꕥ No se encontraron resultados.';
-    const { title, timestamp, views, url } = result;
-    if (result.seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
+// Función genérica para descargar
+async function ytmp(url, format = 'mp3') {
+    const initial = await fetch(`https://d.ymcdn.org/api/v1/init?p=y&23=1llum1n471&_=${Math.random()}`, { headers });
+    const init = await initial.json();
 
-    const vistas = formatViews(views);
+    const id = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?/]+)/)?.[1];
+    if (!id) throw new Error("No se pudo obtener el ID del video.");
 
-    let apiUrl;
-    if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
-      apiUrl = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
-      await conn.sendMessage(m.chat, {
-        audio: { url: apiUrl },
-        mimetype: 'audio/mpeg',
-        fileName: `${title}.mp3`
-      }, { quoted: m });
+    const convertURL = `${init.convertURL}&v=${id}&f=${format}&_=${Math.random()}`;
 
-      await m.react('✔️');
+    const converts = await fetch(convertURL, { headers });
+    const convert = await converts.json();
 
-    } else if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
-      apiUrl = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
-      await conn.sendMessage(m.chat, {
-        video: { url: apiUrl },
-        mimetype: 'video/mp4',
-        fileName: `${title}.mp4`
-      }, { quoted: m });
-
-      await m.react('✔️');
+    let info = {};
+    for (let i = 0; i < 3; i++) {
+        const j = await fetch(convert.progressURL, { headers });
+        info = await j.json();
+        if (info.progress === 3) break;
     }
 
-  } catch (e) {
-    await m.react('✖️');
-    return conn.reply(m.chat, typeof e === 'string' ? e : '⚠︎ Se ha producido un problema.\n> Usa *' + usedPrefix + 'report* para informarlo.\n\n' + e.message, m);
-  }
+    return {
+        url: convert.downloadURL,
+        title: info.title || "Sin título"
+    };
 }
 
-handler.command = handler.help = ['play', 'yta', 'ytmp3', 'play2', 'ytv', 'ytmp4', 'playaudio', 'mp4'];
-handler.tags = ['descargas'];
-handler.group = true;
 
-export default handler;
+// Endpoint MP4
+router.get('/download/ytmp4', apiKeyAuth, async (req, res) => {
+    const { url } = req.query;
 
-function formatViews(views) {
-  if (views === undefined) return "No disponible";
-  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)} Billones (${views.toLocaleString()})`;
-  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)} Millones (${views.toLocaleString()})`;
-  if (views >= 1_000) return `${(views / 1_000).toFixed(1)} Mil (${views.toLocaleString()})`;
-  return views.toString();
-}
+    if (!url) {
+        return res.status(400).json({
+            status: "error",
+            success: false,
+            error: "Falta ?url="
+        });
+    }
+
+    try {
+        const results = await ytmp(url, 'mp4');
+        res.status(200).json({
+            status: true,
+            data: {
+                url: results.url,
+                title: results.title
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            status: false,
+            error: err.message || "Error desconocido al procesar el video."
+        });
+    }
+});
+
+module.exports = router;
