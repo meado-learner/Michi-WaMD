@@ -22,7 +22,7 @@ let handler = async (m, { conn, usedPrefix }) => {
       for (let plugin of menu[tag]) {
         
         for (let cmd of plugin.help) {
-          txt += `> *_» ${usedPrefix}${cmd}_*\n`
+          txt += `> *_» ${usedPrefix}${cmd}_*`
         }
       }
       txt += `\n`
