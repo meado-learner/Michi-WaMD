@@ -13,18 +13,17 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     if (!result) throw 'ꕥ No se encontraron resultados.'
     const { title, thumbnail, timestamp, views, ago, url, author, seconds } = result
-    if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos), hay límite para evitar errores y lentitud en el bot 🤍.'
+    if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).'
 
     const vistas = formatViews(views)
     const thumb = (await conn.getFile(thumbnail)).data
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       const audio = await getAud(url)
-      if (!audio?.url) throw '> ⚠ Algo sucedió mal, no se pudo obtener el audio.'
+      if (!audio?.data) throw '> ⚠ Algo sucedió mal, no se pudo obtener el audio.'
 
       const info = `> ✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`
 
-      
       await conn.sendMessage(m.chat, {
         text: info,
         contextInfo: {
@@ -39,9 +38,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }, { quoted: m })
 
-      
       await conn.sendMessage(m.chat, {
-        audio: { url: audio.url },
+        audio: audio.data,
         fileName: `${title}.mp3`,
         mimetype: 'audio/mpeg'
       }, { quoted: m })
@@ -50,11 +48,10 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     } else if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
       const video = await getVid(url)
-      if (!video?.url) throw '⚠ Algo sucedió mal, no se pudo obtener el video.'
+      if (!video?.data) throw '⚠ Algo sucedió mal, no se pudo obtener el video.'
 
       const info = `✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`
 
-      
       await conn.sendMessage(m.chat, {
         text: info,
         contextInfo: {
@@ -69,9 +66,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }, { quoted: m })
 
-      
       await conn.sendMessage(m.chat, {
-        video: { url: video.url },
+        video: video.data,
         fileName: `${title}.mp4`,
         mimetype: 'video/mp4'
       }, { quoted: m })
@@ -91,43 +87,44 @@ handler.group = true
 
 export default handler
 
-
+// --- FUNCIONES DE DESCARGA ---
 async function getAud(url) {
-  const apis = [
-    { api: 'Adonix', endpoint: `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`, extractor: res => res.data.url },
-    { api: 'Vreden', endpoint: `${global.APIs.vreden.url}/api/ytmp3?url=${encodeURIComponent(url)}`, extractor: res => res.result?.download?.url },
-    { api: 'Delirius', endpoint: `${global.APIs.delirius.url}/download/ymp3?url=${encodeURIComponent(url)}`, extractor: res => res.data?.download?.url }
-  ]
-  return await fetchFromApis(apis)
-}
+  const endpoint = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`
+  try {
+    const res = await fetch(endpoint).then(r => r.json())
+    if (!res?.data?.url) return null
 
+    const finalUrl = await getFinalUrl(res.data.url)
+    const audioBuffer = await fetch(finalUrl).then(r => r.arrayBuffer())
+    
+    return { data: Buffer.from(audioBuffer), api: 'Adonix', url: finalUrl }
+  } catch {
+    return null
+  }
+}
 
 async function getVid(url) {
-  const apis = [
-    { api: 'Adonix', endpoint: `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`, extractor: res => res.data.url },
-    { api: 'Vreden', endpoint: `${global.APIs.vreden.url}/api/ytmp4?url=${encodeURIComponent(url)}`, extractor: res => res.result?.download?.url },
-    { api: 'Delirius', endpoint: `${global.APIs.delirius.url}/download/ytmp4?url=${encodeURIComponent(url)}`, extractor: res => res.data?.download?.url }
-  ]
-  return await fetchFromApis(apis)
-}
+  const endpoint = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`
+  try {
+    const res = await fetch(endpoint).then(r => r.json())
+    if (!res?.data?.url) return null
 
-
-async function fetchFromApis(apis) {
-  for (const { api, endpoint, extractor } of apis) {
-    try {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 10000)
-      const res = await fetch(endpoint, { signal: controller.signal }).then(r => r.json())
-      clearTimeout(timeout)
-      const link = extractor(res)
-      if (link) return { url: link, api }
-    } catch (e) {}
-    await new Promise(resolve => setTimeout(resolve, 500))
+    const finalUrl = await getFinalUrl(res.data.url)
+    const videoBuffer = await fetch(finalUrl).then(r => r.arrayBuffer())
+    
+    return { data: Buffer.from(videoBuffer), api: 'Adonix', url: finalUrl }
+  } catch {
+    return null
   }
-  return null
 }
 
-// Formato de vistas
+// --- SEGUIR REDIRECCIÓN ---
+async function getFinalUrl(url) {
+  const res = await fetch(url, { method: 'HEAD', redirect: 'follow' })
+  return res.url || url
+}
+
+// --- FORMATO DE VISTAS ---
 function formatViews(views) {
   if (views === undefined) return "No disponible"
   if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)} Billones (${views.toLocaleString()})`
