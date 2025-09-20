@@ -32,7 +32,7 @@ title: '',
 body: `ꕤ API: ${audio.api}`,
 thumbnail: thumb,
 mediaType: 2,
-mediaUrl: url,
+mediaUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
 sourceUrl: url
 }
 }
@@ -61,7 +61,7 @@ title: '',
 body: `ꕤ API: ${video.api}`,
 thumbnail: thumb,
 mediaType: 2,
-mediaUrl: url,
+mediaUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
 sourceUrl: url
 }
 }
