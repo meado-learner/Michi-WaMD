@@ -12,7 +12,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
 
     if (!result) throw 'ꕥ No se encontraron resultados.';
-    const { title, seconds, views, url } = result;
+    const { title, seconds, views, url, thumbnail } = result;
     if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
 
     const vistas = formatViews(views);
@@ -22,12 +22,16 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       if (!audioUrl) throw '> ⚠ Algo falló, no se pudo obtener el audio.';
 
       const info = `✿ Descargando *${title}*\n> Vistas: ${vistas}\n> Link: ${url}`;
-      await conn.sendMessage(m.chat, { text: info }, { quoted: m });
+      await conn.sendMessage(m.chat, {
+        image: { url: thumbnail },
+        caption: info
+      }, { quoted: m });
 
       await conn.sendMessage(m.chat, {
         audio: { url: audioUrl },
         fileName: `${title}.mp3`,
-        mimetype: 'audio/mpeg'
+        mimetype: 'audio/mpeg',
+        ptt: true
       }, { quoted: m });
 
       await m.react('✔️');
@@ -37,12 +41,16 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       if (!video?.data) throw '⚠ Algo falló, no se pudo obtener el video.';
 
       const info = `✿ Descargando *${title}*\n> Vistas: ${vistas}\n> Link: ${url}`;
-      await conn.sendMessage(m.chat, { text: info }, { quoted: m });
+      await conn.sendMessage(m.chat, {
+        image: { url: thumbnail },
+        caption: info
+      }, { quoted: m });
 
       await conn.sendMessage(m.chat, {
         video: video.data,
         fileName: `${title}.mp4`,
-        mimetype: 'video/mp4'
+        mimetype: 'video/mp4',
+        caption: '> » Video descargado correctamente.'
       }, { quoted: m });
 
       await m.react('✔️');
@@ -60,13 +68,12 @@ handler.group = true;
 
 export default handler;
 
-// --- FUNCIONES YTMP3 / YTMP4 ---
 async function getYtmp3(url) {
   try {
     const endpoint = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint, { redirect: 'follow' }).then(r => r.json());
     if (!res?.data?.url) return null;
-    return res.data.url; 
+    return res.data.url;
   } catch {
     return null;
   }
@@ -87,13 +94,11 @@ async function getYtmp4(url) {
   }
 }
 
-// --- SEGUIR REDIRECCIÓN ---
 async function getFinalUrl(url) {
   const res = await fetch(url, { method: 'HEAD', redirect: 'follow' });
   return res.url || url;
 }
 
-// --- FORMATO DE VISTAS ---
 function formatViews(views) {
   if (views === undefined) return "No disponible";
   if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)} B (${views.toLocaleString()})`;
