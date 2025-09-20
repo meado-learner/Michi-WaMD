@@ -18,7 +18,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     txt += `✦ Bot » ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n`
 
     for (let tag in menu) {
-      txt += `*${tag.toUpperCase()}*\n`
+      txt += `➭ *${tag.toUpperCase()}*\n`
       for (let plugin of menu[tag]) {
         
         for (let cmd of plugin.help) {
