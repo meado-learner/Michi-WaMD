@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import yts from 'yt-search';
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
@@ -12,64 +11,28 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
 
     if (!result) throw 'ꕥ No se encontraron resultados.';
-    const { title, thumbnail, timestamp, views, ago, url, author, seconds } = result;
-    if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
+    const { title, timestamp, views, url } = result;
+    if (result.seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
 
     const vistas = formatViews(views);
-    const thumb = (await conn.getFile(thumbnail)).data;
 
+    let apiUrl;
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
-      const audio = await getAud(url);
-      if (!audio?.data) throw '> ⚠ Algo sucedió mal, no se pudo obtener el audio.';
-
-      const info = `> ✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`;
-
+      apiUrl = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
       await conn.sendMessage(m.chat, {
-        text: info,
-        contextInfo: {
-          externalAdReply: {
-            title: '',
-            body: `ꕤ API: ${audio.api}`,
-            thumbnail: thumb,
-            mediaType: 2,
-            mediaUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-            sourceUrl: url
-          }
-        }
-      }, { quoted: m });
-
-      await conn.sendMessage(m.chat, {
-        audio: audio.data,
-        fileName: `${title}.mp3`,
-        mimetype: 'audio/mpeg'
+        audio: { url: apiUrl },
+        mimetype: 'audio/mpeg',
+        fileName: `${title}.mp3`
       }, { quoted: m });
 
       await m.react('✔️');
 
     } else if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
-      const video = await getVid(url);
-      if (!video?.data) throw '⚠ Algo sucedió mal, no se pudo obtener el video.';
-
-      const info = `✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`;
-
+      apiUrl = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
       await conn.sendMessage(m.chat, {
-        text: info,
-        contextInfo: {
-          externalAdReply: {
-            title: '',
-            body: `ꕤ API: ${video.api}`,
-            thumbnail: thumb,
-            mediaType: 2,
-            mediaUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-            sourceUrl: url
-          }
-        }
-      }, { quoted: m });
-
-      await conn.sendMessage(m.chat, {
-        video: video.data,
-        fileName: `${title}.mp4`,
-        mimetype: 'video/mp4'
+        video: { url: apiUrl },
+        mimetype: 'video/mp4',
+        fileName: `${title}.mp4`
       }, { quoted: m });
 
       await m.react('✔️');
@@ -86,41 +49,6 @@ handler.tags = ['descargas'];
 handler.group = true;
 
 export default handler;
-
-async function getAud(url) {
-  const endpoint = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
-  try {
-    const res = await fetch(endpoint).then(r => r.json());
-    if (!res?.data?.url) return null;
-
-    const finalUrl = await getFinalUrl(res.data.url);
-    const audioBuffer = await fetch(finalUrl).then(r => r.arrayBuffer());
-
-    return { data: Buffer.from(audioBuffer), api: 'Adonix', url: finalUrl };
-  } catch {
-    return null;
-  }
-}
-
-async function getVid(url) {
-  const endpoint = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
-  try {
-    const res = await fetch(endpoint).then(r => r.json());
-    if (!res?.data?.url) return null;
-
-    const finalUrl = await getFinalUrl(res.data.url);
-    const videoBuffer = await fetch(finalUrl).then(r => r.arrayBuffer());
-
-    return { data: Buffer.from(videoBuffer), api: 'Adonix', url: finalUrl };
-  } catch {
-    return null;
-  }
-}
-
-async function getFinalUrl(url) {
-  const res = await fetch(url, { method: 'HEAD', redirect: 'follow' });
-  return res.url || url;
-}
 
 function formatViews(views) {
   if (views === undefined) return "No disponible";
