@@ -248,6 +248,14 @@ async function connectionUpdate(update) {
   global.stopped = connection;
   if (isNewLogin) conn.isInit = true;
   const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
+  
+  // CORRECCIÓN APLICADA AQUÍ
+  if (!conn || conn.ws.socket == null) {
+    console.log(chalk.yellow('Conexión no establecida, esperando...'));
+    return;
+  }
+  // FIN DE LA CORRECCIÓN
+
   if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
     await global.reloadHandler(true).catch(console.error);
     global.timestamp.connect = new Date;
@@ -424,3 +432,4 @@ setInterval(async () => {
   await purgeOldFiles()
 }, 1000 * 60 * 60);
 _quickTest().catch(console.error)
+
