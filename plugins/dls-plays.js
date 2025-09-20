@@ -31,7 +31,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         audio: { url: audioUrl },
         fileName: `${title}.mp3`,
         mimetype: 'audio/mpeg',
-        ptt: false
+        //ptt: false
       }, { quoted: m });
 
       await m.react('✔️');
