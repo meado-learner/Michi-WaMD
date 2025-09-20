@@ -12,35 +12,20 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
 
     if (!result) throw 'ꕥ No se encontraron resultados.';
-    const { title, thumbnail, timestamp, views, ago, url, author, seconds } = result;
+    const { title, seconds, views, url } = result;
     if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
 
     const vistas = formatViews(views);
-    const thumb = (await conn.getFile(thumbnail)).data;
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
-      const audio = await getAud(url);
-      if (!audio?.data) throw '> ⚠ Algo sucedió mal, no se pudo obtener el audio.';
+      const audioUrl = await getYtmp3(url);
+      if (!audioUrl) throw '> ⚠ Algo falló, no se pudo obtener el audio.';
 
-      const info = `> ✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`;
+      const info = `✿ Descargando *${title}*\n> Vistas: ${vistas}\n> Link: ${url}`;
+      await conn.sendMessage(m.chat, { text: info }, { quoted: m });
 
       await conn.sendMessage(m.chat, {
-        text: info,
-        contextInfo: {
-          externalAdReply: {
-            title: '',
-            body: `ꕤ API: ${audio.api}`,
-            thumbnail: thumb,
-            mediaType: 2,
-            mediaUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-            sourceUrl: url
-          }
-        }
-      }, { quoted: m });
-
-      // ✅ Aquí se envía el audio real
-      await conn.sendMessage(m.chat, {
-        audio: audio.data,
+        audio: { url: audioUrl },
         fileName: `${title}.mp3`,
         mimetype: 'audio/mpeg'
       }, { quoted: m });
@@ -48,24 +33,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       await m.react('✔️');
 
     } else if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
-      const video = await getVid(url);
-      if (!video?.data) throw '⚠ Algo sucedió mal, no se pudo obtener el video.';
+      const video = await getYtmp4(url);
+      if (!video?.data) throw '⚠ Algo falló, no se pudo obtener el video.';
 
-      const info = `✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`;
-
-      await conn.sendMessage(m.chat, {
-        text: info,
-        contextInfo: {
-          externalAdReply: {
-            title: '',
-            body: `ꕤ API: ${video.api}`,
-            thumbnail: thumb,
-            mediaType: 2,
-            mediaUrl: 'https://whatsapp.com/channel/0029VbArz9fAO7RGy2915k3O',
-            sourceUrl: url
-          }
-        }
-      }, { quoted: m });
+      const info = `✿ Descargando *${title}*\n> Vistas: ${vistas}\n> Link: ${url}`;
+      await conn.sendMessage(m.chat, { text: info }, { quoted: m });
 
       await conn.sendMessage(m.chat, {
         video: video.data,
@@ -78,44 +50,38 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
   } catch (e) {
     await m.react('✖️');
-    return conn.reply(m.chat, typeof e === 'string' ? e : '⚠︎ Se ha producido un problema.\n> Usa *' + usedPrefix + 'report* para informarlo.\n\n' + e.message, m);
+    return conn.reply(m.chat, typeof e === 'string' ? e : '⚠ Se produjo un error.\n' + e.message, m);
   }
-}
+};
 
-handler.command = handler.help = ['play', 'yta', 'ytmp3', 'play2', 'ytv', 'ytmp4', 'playaudio', 'mp4'];
+handler.command = handler.help = ['play', 'yta', 'ytmp3', 'playaudio', 'play2', 'ytv', 'ytmp4', 'mp4'];
 handler.tags = ['descargas'];
 handler.group = true;
 
 export default handler;
 
-// --- FUNCIONES DE DESCARGA ---
-async function getAud(url) {
-  const endpoint = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
+// --- FUNCIONES YTMP3 / YTMP4 ---
+async function getYtmp3(url) {
   try {
-    const res = await fetch(endpoint).then(r => r.json());
+    const endpoint = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
+    const res = await fetch(endpoint, { redirect: 'follow' }).then(r => r.json());
     if (!res?.data?.url) return null;
-
-    // 🔥 Seguir redirección para obtener URL final
-    const finalUrl = await getFinalUrl(res.data.url);
-    const audioBuffer = await fetch(finalUrl).then(r => r.arrayBuffer());
-
-    return { data: Buffer.from(audioBuffer), api: 'Adonix', url: finalUrl };
+    return res.data.url; 
   } catch {
     return null;
   }
 }
 
-async function getVid(url) {
-  const endpoint = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
+async function getYtmp4(url) {
   try {
+    const endpoint = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint).then(r => r.json());
     if (!res?.data?.url) return null;
 
-    // 🔥 Seguir redirección para obtener URL final
     const finalUrl = await getFinalUrl(res.data.url);
     const videoBuffer = await fetch(finalUrl).then(r => r.arrayBuffer());
 
-    return { data: Buffer.from(videoBuffer), api: 'Adonix', url: finalUrl };
+    return { data: Buffer.from(videoBuffer), url: finalUrl };
   } catch {
     return null;
   }
@@ -130,8 +96,8 @@ async function getFinalUrl(url) {
 // --- FORMATO DE VISTAS ---
 function formatViews(views) {
   if (views === undefined) return "No disponible";
-  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)} Billones (${views.toLocaleString()})`;
-  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)} Millones (${views.toLocaleString()})`;
-  if (views >= 1_000) return `${(views / 1_000).toFixed(1)} Mil (${views.toLocaleString()})`;
+  if (views >= 1_000_000_000) return `${(views / 1_000_000_000).toFixed(1)} B (${views.toLocaleString()})`;
+  if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)} M (${views.toLocaleString()})`;
+  if (views >= 1_000) return `${(views / 1_000).toFixed(1)} K (${views.toLocaleString()})`;
   return views.toString();
 }
