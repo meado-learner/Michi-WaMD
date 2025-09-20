@@ -38,10 +38,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }, { quoted: m })
 
+      // 🔥 Enviar audio desde la URL final
       await conn.sendMessage(m.chat, {
-        audio: audio.data,
+        audio: { url: audio.finalUrl },
+        mimetype: 'audio/mpeg',
         fileName: `${title}.mp3`,
-        mimetype: 'audio/mpeg'
       }, { quoted: m })
 
       await m.react('✔️')
@@ -66,10 +67,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }, { quoted: m })
 
+      // 🔥 Enviar video desde la URL final
       await conn.sendMessage(m.chat, {
-        video: video.data,
+        video: { url: video.finalUrl },
+        mimetype: 'video/mp4',
         fileName: `${title}.mp4`,
-        mimetype: 'video/mp4'
       }, { quoted: m })
 
       await m.react('✔️')
@@ -94,10 +96,11 @@ async function getAud(url) {
     const res = await fetch(endpoint).then(r => r.json())
     if (!res?.data?.url) return null
 
-    const finalUrl = await getFinalUrl(res.data.url)
-    const audioBuffer = await fetch(finalUrl).then(r => r.arrayBuffer())
-    
-    return { data: Buffer.from(audioBuffer), api: 'Adonix', url: finalUrl }
+    // 🔥 Resolver redirección al estilo Maycol
+    const head = await fetch(res.data.url, { method: "HEAD", redirect: "follow" })
+    const finalUrl = head.url
+
+    return { data: Buffer.alloc(0), api: 'Adonix', url: res.data.url, finalUrl } // data vacío porque enviamos URL directo
   } catch {
     return null
   }
@@ -109,19 +112,13 @@ async function getVid(url) {
     const res = await fetch(endpoint).then(r => r.json())
     if (!res?.data?.url) return null
 
-    const finalUrl = await getFinalUrl(res.data.url)
-    const videoBuffer = await fetch(finalUrl).then(r => r.arrayBuffer())
-    
-    return { data: Buffer.from(videoBuffer), api: 'Adonix', url: finalUrl }
+    const head = await fetch(res.data.url, { method: "HEAD", redirect: "follow" })
+    const finalUrl = head.url
+
+    return { data: Buffer.alloc(0), api: 'Adonix', url: res.data.url, finalUrl }
   } catch {
     return null
   }
-}
-
-// --- SEGUIR REDIRECCIÓN ---
-async function getFinalUrl(url) {
-  const res = await fetch(url, { method: 'HEAD', redirect: 'follow' })
-  return res.url || url
 }
 
 // --- FORMATO DE VISTAS ---
