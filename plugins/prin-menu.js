@@ -30,14 +30,13 @@ let handler = async (m, { conn, usedPrefix }) => {
     await conn.sendMessage(
       m.chat,
       {
-        image: { url: global.michipg },
-        caption: txt,
+        text: txt,
         contextInfo: {
           externalAdReply: {
             title: `› Menu de comandos`,
-            body: "",
-            thumbnailUrl: global.michipg,
-            sourceUrl: "https://whatsapp.com/channel/0029VaS0g4T1jQZ2VwVJCe0P", // pon tu link aquí
+            body: "Toca aquí para más info",
+            thumbnailUrl: global.michipg, 
+            sourceUrl: "https://whatsapp.com/channel/0029VaS0g4T1jQZ2VwVJCe0P",
             mediaType: 1,
             renderLargerThumbnail: true
           }
