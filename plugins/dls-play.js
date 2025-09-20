@@ -24,7 +24,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
       const info = `> ✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`
 
-      // Mensaje de info con externalAdReply
+      
       await conn.sendMessage(m.chat, {
         text: info,
         contextInfo: {
@@ -43,8 +43,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       await conn.sendMessage(m.chat, {
         audio: { url: audio.url },
         fileName: `${title}.mp3`,
-        mimetype: 'audio/mpeg',
-        ptt: true
+        mimetype: 'audio/mpeg'
       }, { quoted: m })
 
       await m.react('✔️')
@@ -55,7 +54,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
       const info = `✿ Descargando *<${title}>*\n\n> ✩ Canal » *${author.name}*\n> ✐ Vistas » *${vistas}*\n> ✧︎ Duración » *${timestamp}*\n> ❐ Publicado » *${ago}*\n> ➪ Link » ${url}`
 
-      // Mensaje de info con externalAdReply
+      
       await conn.sendMessage(m.chat, {
         text: info,
         contextInfo: {
@@ -70,7 +69,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }, { quoted: m })
 
-      // Video aparte limpio
+      
       await conn.sendMessage(m.chat, {
         video: { url: video.url },
         fileName: `${title}.mp4`,
