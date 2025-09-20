@@ -39,7 +39,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         }
       }, { quoted: m })
 
-      // Audio aparte limpio
+      
       await conn.sendMessage(m.chat, {
         audio: { url: audio.url },
         fileName: `${title}.mp3`,
@@ -94,7 +94,7 @@ export default handler
 
 async function getAud(url) {
   const apis = [
-    { api: 'Adonix', endpoint: `${global.APIs.adonix.url}/download/yt?apikey=Adofreekey&url=${encodeURIComponent(url)}&format=audio`, extractor: res => res.data.url },
+    { api: 'Adonix', endpoint: `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`, extractor: res => res.data.url },
     { api: 'Vreden', endpoint: `${global.APIs.vreden.url}/api/ytmp3?url=${encodeURIComponent(url)}`, extractor: res => res.result?.download?.url },
     { api: 'Delirius', endpoint: `${global.APIs.delirius.url}/download/ymp3?url=${encodeURIComponent(url)}`, extractor: res => res.data?.download?.url }
   ]
@@ -104,7 +104,7 @@ async function getAud(url) {
 
 async function getVid(url) {
   const apis = [
-    { api: 'Adonix', endpoint: `${global.APIs.adonix.url}/download/yt?apikey=Adofreekey&url=${encodeURIComponent(url)}&format=video`, extractor: res => res.data.url },
+    { api: 'Adonix', endpoint: `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`, extractor: res => res.data.url },
     { api: 'Vreden', endpoint: `${global.APIs.vreden.url}/api/ytmp4?url=${encodeURIComponent(url)}`, extractor: res => res.result?.download?.url },
     { api: 'Delirius', endpoint: `${global.APIs.delirius.url}/download/ytmp4?url=${encodeURIComponent(url)}`, extractor: res => res.data?.download?.url }
   ]
