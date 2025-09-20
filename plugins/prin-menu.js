@@ -25,7 +25,7 @@ let handler = async (m, { conn, usedPrefix }) => {
           txt += `> *_» ${usedPrefix}${cmd}_*\n`
         }
       }
-      txt += `\n`
+      txt += ``
     }
 
     await conn.sendMessage(
