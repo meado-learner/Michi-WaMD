@@ -37,7 +37,7 @@ export async function before(m, { conn }) {
         },
         externalAdReply: {
           title: nombreBot,
-          body: "${dev}",
+          body: "✎ ⍴᥆ᥕᥱrᥱძ ᑲᥡ 𝗔𝗱𝗼",
           thumbnailUrl: bannerFinal,
           sourceUrl: "api-adonix.ultraplus.click",
           mediaType: 1,
