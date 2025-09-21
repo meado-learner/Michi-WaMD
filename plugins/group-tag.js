@@ -17,8 +17,10 @@ const handler = async (m, { conn, args }) => {
       return buffer
     }
 
-    if (m.quoted?.message) {
-      const quoted = m.quoted.message
+    const getQuotedMessage = m.quoted?.message || m.message?.extendedTextMessage?.contextInfo?.quotedMessage
+
+    if (getQuotedMessage) {
+      const quoted = getQuotedMessage
 
       if (quoted.imageMessage) {
         const buffer = await streamToBuffer(await downloadContentFromMessage(quoted.imageMessage, 'image'))
