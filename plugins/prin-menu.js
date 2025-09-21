@@ -20,7 +20,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     let seconds = Math.floor(uptimeSec % 60)
     let uptimeStr = `${hours}h ${minutes}m ${seconds}s`
 
-    // Nombre y banner del bot
+    
     let botNameToShow = global.botname || ""
     let bannerUrl = global.michipg || ""
 
@@ -60,7 +60,7 @@ let handler = async (m, { conn, usedPrefix }) => {
           forwardingScore: 9999,
           isForwarded: true,
           externalAdReply: {
-            title: ``,
+            title: `${botNameToShow}, mᥲძᥱ ᥕі𝗍һ ᑲᥡ 𝗔𝗱𝗼`,
             body: "» Menu De Comandos",
             thumbnailUrl: bannerUrl,
             sourceUrl: "https://whatsapp.com/channel/0029VaS0g4T1jQZ2VwVJCe0P",
