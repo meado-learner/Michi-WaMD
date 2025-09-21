@@ -9,7 +9,7 @@ var handler = async (m, { conn }) => {
   await conn.reply(m.chat, `> 🤍 Iniciando eliminación de archivos de sesión excepto creds.json...`, m)
   m.react('🕓') 
 
-  const sessionPath = './Sessions/Principal'
+  const sessionPath = './Sessions/Principal/'
 
   try {
     if (!existsSync(sessionPath)) {
