@@ -12,16 +12,25 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
 
     if (!result) throw 'ꕥ No se encontraron resultados.';
-    const { title, seconds, views, url, thumbnail } = result;
+    const { title, seconds, views, url, thumbnail, author } = result;
     if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
 
     const vistas = formatViews(views);
+    const duracion = formatDuration(seconds);
+    const canal = author?.name || 'Desconocido';
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       const audioUrl = await getYtmp3(url);
       if (!audioUrl) throw '> ⚠ Algo falló, no se pudo obtener el audio.';
 
-      const info = `✿ Descargando *${title}*\n> Vistas: ${vistas}\n> Link: ${url}`;
+      const info = `「✦」Descargando *<${title}>*
+
+> ✐ Canal » *${canal}*
+> ⴵ Duración » *${duracion}*
+> ✰ Calidad: *128k*
+> 🜸 Link » ${url}
+> ⟡ Vistas » *${vistas}*`;
+
       await conn.sendMessage(m.chat, {
         image: { url: thumbnail },
         caption: info
@@ -31,7 +40,6 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         audio: { url: audioUrl },
         fileName: `${title}.mp3`,
         mimetype: 'audio/mpeg',
-        //ptt: false
       }, { quoted: m });
 
       await m.react('✔️');
@@ -40,7 +48,14 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       const video = await getYtmp4(url);
       if (!video?.data) throw '⚠ Algo falló, no se pudo obtener el video.';
 
-      const info = `✿ Descargando *${title}*\n> Vistas: ${vistas}\n> Link: ${url}`;
+      const info = `「✦」Descargando *<${title}>*
+
+> ✐ Canal » *${canal}*
+> ⴵ Duración » *${duracion}*
+> ✰ Calidad: *360p*
+> 🜸 Link » ${url}
+> ⟡ Vistas » *${vistas}*`;
+
       await conn.sendMessage(m.chat, {
         image: { url: thumbnail },
         caption: info
@@ -105,4 +120,10 @@ function formatViews(views) {
   if (views >= 1_000_000) return `${(views / 1_000_000).toFixed(1)} M (${views.toLocaleString()})`;
   if (views >= 1_000) return `${(views / 1_000).toFixed(1)} K (${views.toLocaleString()})`;
   return views.toString();
+}
+
+function formatDuration(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return `${min} minutos ${sec} segundos`;
 }
