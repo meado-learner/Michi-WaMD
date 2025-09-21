@@ -159,7 +159,8 @@ export async function handler(chatUpdate) {
 
         const isROwner = [...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
         const isOwner = isROwner || m.fromMe
-        const isMods = isROwner || global.mods.map(v => v.replace(/[^0--9]/g, "") + "@s.whatsapp.net").includes(m.sender)
+        // --- LÍNEA CORREGIDA ---
+        const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
         const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender) || user.premium == true
 
         if (opts["nyimak"]) return
@@ -215,8 +216,6 @@ export async function handler(chatUpdate) {
                 }
             const strRegex = (str) => str.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
             
-            // --- LÍNEA CORREGIDA ---
-            // Ahora se usa el `prefixRegex` del subbot si existe.
             const pluginPrefix = plugin.customPrefix || prefixRegex || conn.prefix || global.prefix
 
             const match = (pluginPrefix instanceof RegExp ?
