@@ -19,14 +19,17 @@ let handler = async (m, { conn, usedPrefix }) => {
     let minutes = Math.floor((uptimeSec % 3600) / 60)
     let seconds = Math.floor(uptimeSec % 60)
     let uptimeStr = `${hours}h ${minutes}m ${seconds}s`
-
+    
     let botNameToShow = global.botname || ""
+    let bannerUrl = global.michipg || ""
+
     const senderBotNumber = conn.user.jid.split('@')[0]
     const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
     if (fs.existsSync(configPath)) {
       try {
         const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
         if (subBotConfig.name) botNameToShow = subBotConfig.name
+        if (subBotConfig.banner) bannerUrl = subBotConfig.banner // si existe banner personalizado lo usamos
       } catch (e) { console.error(e) }
     }
 
@@ -58,7 +61,7 @@ let handler = async (m, { conn, usedPrefix }) => {
           externalAdReply: {
             title: ``,
             body: "» Menu De Comandos",
-            thumbnailUrl: global.michipg,
+            thumbnailUrl: bannerUrl, 
             sourceUrl: "https://whatsapp.com/channel/0029VaS0g4T1jQZ2VwVJCe0P",
             mediaType: 1,
             renderLargerThumbnail: true
