@@ -89,7 +89,7 @@ const handler = async (m, { conn, command }) => {
   }
 }
 
-handler.help = ['setbanner']
+handler.help = ['setimagen']
 handler.tags = ['serbot']
 handler.command = ['setimagen']
 export default handler
