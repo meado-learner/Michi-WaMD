@@ -27,18 +27,22 @@ let handler = async (m, { conn, usedPrefix, command }) => {
       ...global.rcanal  
     }, { quoted: m })  
 
-    let img = await q.download?.()  
-    if (!img) throw new Error('No pude descargar la imagen.')  
+    let imgBuffer = await q.download?.()  
+    if (!imgBuffer) throw new Error('No pude descargar la imagen.')  
 
+    
     const formData = new FormData()
-    formData.append('fileToUpload', img, 'image.jpg')
-    formData.append('reqtype', 'fileupload')
+    formData.append('fileToUpload', imgBuffer, 'image.jpg')
 
-    const uploadRes = await fetch('https://catbox.moe/user/api.php', { method: 'POST', body: formData })
+    const uploadRes = await fetch('https://adonixfiles.mywire.org/upload', {
+      method: 'POST',
+      body: formData
+    })
     if (!uploadRes.ok) throw new Error('Error al subir la imagen')
-    const uploadedUrl = await uploadRes.text()
+    const uploadedUrl = await uploadRes.text() 
 
-    const apiUrl = `https://api-adonix.gleeze.com/canvas/hd?apikey=Adofreekey&url=${encodeURIComponent(uploadedUrl)}`
+    
+    const apiUrl = `https://api-adonix.ultraplus.click/canvas/hd?apikey=Adofreekey&url=${encodeURIComponent(uploadedUrl)}`
     const res = await fetch(apiUrl)
     if (!res.ok) throw new Error('Error al mejorar la imagen')
     const buffer = await res.buffer()
@@ -62,7 +66,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 }
 
 handler.help = ['hd']
-handler.tags = ['tools']
+handler.tags = ['herramientas']
 handler.command = ['remini', 'hd', 'enhance']
 
 export default handler
