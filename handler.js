@@ -249,7 +249,7 @@ const primaryBotInGroup = participants.some(p => p.jid === global.db.data.chats[
 if (primaryBotConn && primaryBotInGroup || global.db.data.chats[m.chat].primaryBot === global.conn.user.jid) {
 throw !1
 } else {
-// global.db.data.chats[m.chat].primaryBot = null
+global.db.data.chats[m.chat].primaryBot = null
 }} else {
 }
 
