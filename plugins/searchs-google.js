@@ -8,7 +8,8 @@ let handler = async (m, { text, usedPrefix, args }) => {
 
   try {
     await m.react('🕒');
-Url);
+
+    const response = await fetch(apiUrl);
     if (!response.ok) throw new Error('No se pudo conectar con la API');
 
     const result = await response.json();
@@ -28,7 +29,7 @@ Url);
     await m.react('✔️');
   } catch (error) {
     await m.react('✖️');
-    m.reply(`⚠︎ Se ha producido un problema.\n> Usa *${usedPrefix}report* para informarlo.\n\n${error.message}.`);
+    m.reply(`⚠︎ Se ha producido un problema.\n> Usa *${usedPrefix}report* para informarlo.\n\n${error.message}`);
   }
 };
 
