@@ -23,7 +23,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     await conn.sendMessage(m.chat, { text: `ꕤ Imagen subida con éxito, mejorando calidad...`, ...global.rcanal }, { quoted: m });
 
   
-    const apiUrl = `https://api-adonix.ultraplus.click/canvas/hd?apikey=Adofreekey&url=${encodeURIComponent(uploadedUrl)}`;
+    const apiUrl = `https://api-adonix.gleeze.com/canvas/hd?apikey=Adofreekey&url=${encodeURIComponent(uploadedUrl)}`;
     const res = await fetch(apiUrl);
     if (!res.ok) throw '❌ Error al mejorar la imagen';
     const buffer = await res.buffer();
