@@ -22,9 +22,10 @@ const fallback = Array.isArray(err.errors) ? err.errors.map(e => `• ${e?.engin
 await conn.reply(m.chat, `⚠︎ No se pudo mejorar la imagen\n> Usa ${usedPrefix}report para informarlo\n\n${fallback}`, m)
 }}
 
-handler.command = ['hd', 'remini', 'enhance']
+
 handler.help = ['hd']
 handler.tags = ['herramientas']
+handler.command = ['hd', 'remini', 'enhance']
 
 export default handler
 
