@@ -1,44 +1,41 @@
-import { execSync } from 'child_process'
+const handler = async (m, { isOwner, isAdmin, conn, args, command, participants }) => {
+  if (!isAdmin && !isOwner) return m.reply('» Solo administradores pueden usar esto.')
 
-var handler = async (m, { conn, text, isMods }) => {
-  if (!isMods) return
-  await m.react('🕒')
+  await m.react('🕒') 
+
   try {
-    const stdout = execSync('git pull' + (m.fromMe && text ? ' ' + text : ''))
-    let messager = stdout.toString()
-    if (messager.includes('❐ Ya está cargada la actualización.')) messager = '❀ Los datos ya están actualizados a la última versión.'
-    if (messager.includes('ꕥ Actualizando.')) messager = '❀ Procesando, espere un momento mientras me actualizo.\n\n' + stdout.toString()
-    await m.react('✔️')
-    await conn.sendMessage(m.chat, { text: messager, ...rcanal }, { quoted: m })
-  } catch {
-    try {
-      const status = execSync('git status --porcelain')
-      if (status.length > 0) {
-        const conflictedFiles = status.toString().split('\n').filter(line => line.trim() !== '').map(line => {
-          if (line.includes('.npm/') || line.includes('.cache/') || line.includes('tmp/') || line.includes('database.json') || line.includes('sessions/Principal/') || line.includes('npm-debug.log')) {
-            return null
-          }
-          return '*→ ' + line.slice(3) + '*'
-        }).filter(Boolean)
-        if (conflictedFiles.length > 0) {
-          const errorMessage = `\`⚠︎ No se pudo realizar la actualización:\`\n\n> *Se han encontrado cambios locales en los archivos del bot que entran en conflicto con las nuevas actualizaciones del repositorio.*\n\n${conflictedFiles.join('\n')}.`
-          await conn.sendMessage(m.chat, { text: errorMessage, ...rcanal }, { quoted: m })
-          await m.react('✖️')
-        }
-      }
-    } catch (error) {
-      console.error(error)
-      let errorMessage2 = '⚠︎ Ocurrió un error inesperado.'
-      if (error.message) {
-        errorMessage2 += '\n⚠︎ Mensaje de error: ' + error.message
-      }
-      await conn.sendMessage(m.chat, { text: errorMessage2, ...rcanal }, { quoted: m })
+    const mensaje = args.join` `
+    const encabezado = `❀ Mención general ❀`
+    const info = `⌦ Grupo: *${await conn.getName(m.chat)}*\n⌦ Miembros: *${participants.length}*\n⌦ Motivo: *${mensaje || 'Sin mensaje personalizado'}*`
+
+    let cuerpo = `\n♡ Miembros mencionados:\n`
+    for (const mem of participants) {
+      cuerpo += `» @${mem.id.split('@')[0]}\n`
     }
+
+    const pie = `\n❒ Versión: *${global.vs || '1.0'}*`
+
+    const textoFinal = `${encabezado}\n\n${info}\n${cuerpo}${pie}`
+
+  
+    await conn.sendMessage(m.chat, {
+      text: textoFinal,
+      mentions: participants.map(p => p.id),
+      ...global.rcanal
+    }, { quoted: m })
+
+    await m.react('✔️') 
+  } catch (e) {
+    console.error(e)
+    await conn.sendMessage(m.chat, { text: '❌ Ocurrió un error.', ...global.rcanal }, { quoted: m })
+    await m.react('✖️')
   }
 }
 
-handler.help = ['update']
-handler.tags = ['owner']
-handler.command = ['update', 'fix', 'actualizar']
+handler.help = ['todos']
+handler.tags = ['group']
+handler.command = ['todos', 'invocar', 'tagall']
+handler.admin = true
+handler.group = true
 
 export default handler
