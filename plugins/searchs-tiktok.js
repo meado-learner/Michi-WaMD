@@ -23,7 +23,7 @@ const handler = async (m, { conn, text, usedPrefix }) => {
 
       if (type === 'image' && Array.isArray(images)) {
         const medias = images.map(url => ({ type: 'image', data: { url }, caption }));
-        await conn.sendSylphy(m.chat, medias, { quoted: m });
+        await conn.sendAdonix(m.chat, medias, { quoted: m });
         if (music) {
           await conn.sendMessage(m.chat, {
             audio: { url: music },
