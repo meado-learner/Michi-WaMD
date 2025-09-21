@@ -4,7 +4,7 @@ const handler = async (msg, { conn }) => {
     const sender = (msg.key.participant || msg.key.remoteJid).replace(/[^0-9]/g, '');
     const isGroup = chatId.endsWith('@g.us');
 
-    await conn.sendMessage(chatId, { react: { text: '🜸', key: msg.key } });
+    await conn.sendMessage(chatId, { react: { text: '⭐', key: msg.key } });
 
     if (!isGroup) {
       await conn.sendMessage(chatId, {
@@ -22,7 +22,7 @@ const handler = async (msg, { conn }) => {
     const args = messageText.trim().split(' ').slice(1);
     const extraMsg = args.join(' ');
 
-    let texto = `「✦」Invocación grupal\n\n`;
+    let texto = `>「✦」*Invocación grupal*\n\n`;
     texto += `✐ Grupo: *${metadata.subject}*\n`;
     texto += `ⴵ Miembros: *${participants.length}*\n`;
     if (extraMsg) texto += `✰ Mensaje: *${extraMsg}*\n`;
