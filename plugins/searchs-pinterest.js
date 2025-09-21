@@ -16,7 +16,7 @@ if (!results.length) {
 return conn.reply(m.chat, `ꕥ No se encontraron resultados para "${text}".`, m)
 }
 const medias = results.slice(0, 10).map(img => ({ type: 'image', data: { url: img.image_large_url } }))
-await conn.sendAdonix(m.chat, medias, {
+await conn.sendSylphy(m.chat, medias, {
 caption: `❐ 𝖠𝗊𝗎𝗂 𝗍𝗂𝖾𝗇𝖾𝗌 𝗅𝗈𝗌 𝗋𝖾𝗌𝗎𝗅𝗍𝖺𝖽𝗈𝗌 𝖽𝖾 𝗍𝗎 𝖻𝗎𝗌𝗊𝗎𝖾𝖽𝖺.`, quoted: m })
 await m.react('✔️')
 }} catch (e) {
