@@ -7,6 +7,19 @@ const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 var handler = m => m
 handler.all = async function (m) { 
+    
+    let botNameToShow = global.botname
+    let bannerUrl = icono || global.michipg
+    try {
+        const senderBotNumber = conn.user.jid.split('@')[0]
+        const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
+        if (fs.existsSync(configPath)) {
+            const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+            if (subBotConfig.name) botNameToShow = subBotConfig.name
+            if (subBotConfig.banner) bannerUrl = subBotConfig.banner
+        }
+    } catch(e) { console.error('Error leyendo subbot config:', e) }
+
     global.canalIdM = ["120363403739366547@newsletter", "120363403739366547@newsletter"]
     global.canalNombreM = ["Support Ado 🦖", "Ado 𝗖𝗛𝗡𝗟︎"]
     global.channelRD = await getRandomChannel()
@@ -27,19 +40,6 @@ handler.all = async function (m) {
     global.redes = [canal, comunidad, git, github, correo].getRandom()
 
     global.nombre = m.pushName || 'Anónimo'
-
-    // --- Leer nombre y banner del subbot ---
-    let botNameToShow = global.botname
-    let bannerUrl = icono || global.michipg
-    try {
-        const senderBotNumber = conn.user.jid.split('@')[0]
-        const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
-        if (fs.existsSync(configPath)) {
-            const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-            if (subBotConfig.name) botNameToShow = subBotConfig.name
-            if (subBotConfig.banner) bannerUrl = subBotConfig.banner
-        }
-    } catch(e) { console.error('Error leyendo subbot config:', e) }
 
     global.packsticker = `〄 𝗦𝗧𝗜𝗖𝗞𝗘𝗥𝗦\n✩ᩚ Usuario » ${global.nombre}\n✦ Bot » ${botNameToShow}`
     global.packsticker2 = `\n\n${dev}`
