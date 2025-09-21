@@ -12,9 +12,15 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
+    let uptimeSec = process.uptime()
+    let hours = Math.floor(uptimeSec / 3600)
+    let minutes = Math.floor((uptimeSec % 3600) / 60)
+    let seconds = Math.floor(uptimeSec % 60)
+    let uptimeStr = `${hours}h ${minutes}m ${seconds}s`
+
     let txt = `> .・。.・゜〄・.・〄・゜・。.\n`
     txt += `> ✐ *Hola! Soy ${global.botname || ""}*\n`
-    txt += `> 〄 *Hora* » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n`
+    txt += `> ⊹ *Hora* » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n`
     txt += `> ⊹ *Fecha* » ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\n`
     txt += `> ✦ *Bot* » ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n`
 
@@ -27,6 +33,8 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
       txt += `\n`
     }
+
+    txt += `> : *Actividad* » ${uptimeStr}`
 
     await conn.sendMessage(
       m.chat,
@@ -44,7 +52,8 @@ let handler = async (m, { conn, usedPrefix }) => {
             renderLargerThumbnail: true
           }
         }
-      }
+      },
+      { quoted: m } 
     )
   } catch (e) {
     console.error(e)
