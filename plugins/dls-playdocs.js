@@ -26,7 +26,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const { title, seconds, views, url, thumbnail, author } = result;
     console.log(`[INFO] Video seleccionado: ${title} | ${seconds}s | ${views} vistas | ${url}`);
 
-    if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
+    if (seconds > 2400) throw '❐ Lo sentimos, este video excede la duración máxima de 40 minutos. Esta limitación se aplica para evitar saturación en el bot y garantizar un rendimiento estable.';
 
     const vistas = formatViews(views);
     const duracion = formatDuration(seconds);
