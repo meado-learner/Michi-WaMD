@@ -20,9 +20,7 @@ const handler = async (m, { conn, args }) => {
     if (m.quoted?.message) {
       const quoted = m.quoted.message
 
-      if (quoted.conversation || quoted.extendedTextMessage?.text) {
-        messageToForward = { text: quoted.conversation || quoted.extendedTextMessage.text }
-      } else if (quoted.imageMessage) {
+      if (quoted.imageMessage) {
         const buffer = await streamToBuffer(await downloadContentFromMessage(quoted.imageMessage, 'image'))
         messageToForward = { image: buffer, mimetype: quoted.imageMessage.mimetype || 'image/jpeg', caption: quoted.imageMessage.caption || '' }
       } else if (quoted.videoMessage) {
@@ -34,6 +32,11 @@ const handler = async (m, { conn, args }) => {
       } else if (quoted.stickerMessage) {
         const buffer = await streamToBuffer(await downloadContentFromMessage(quoted.stickerMessage, 'sticker'))
         messageToForward = { sticker: buffer }
+      } else if (quoted.documentMessage) {
+        const buffer = await streamToBuffer(await downloadContentFromMessage(quoted.documentMessage, 'document'))
+        messageToForward = { document: buffer, mimetype: quoted.documentMessage.mimetype || 'application/pdf', caption: quoted.documentMessage.caption || '' }
+      } else if (quoted.conversation || quoted.extendedTextMessage?.text) {
+        messageToForward = { text: quoted.conversation || quoted.extendedTextMessage.text }
       }
     }
 
