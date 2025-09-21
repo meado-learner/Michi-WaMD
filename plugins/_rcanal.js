@@ -31,7 +31,7 @@ export async function before(m, { conn }) {
         isForwarded: true,
         forwardingScore: 1,
         forwardedNewsletterMessageInfo: {
-          newsletterJid: newsletterJidRandom,
+          newsletterJid: channelRD.id,
           serverMessageId: 100,
           newsletterName: nombreBot,
         },
