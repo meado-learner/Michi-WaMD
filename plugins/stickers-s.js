@@ -9,19 +9,16 @@ let handler = async (m, { conn, args }) => {
     let packstickers = global.db.data.users[userId] || {}
     let texto2 = packstickers.text2 || global.packsticker2
     let texto1 = ''
+    
+    if (args.length > 0) {
+        texto1 = args.join(' ').trim() || global.packsticker
+    } else {
+        texto1 = global.packsticker
+    }
 
     try {
         let q = m.quoted ? m.quoted : m
         let mime = (q.msg || q).mimetype || q.mediaType || ''
-        let txt = args.join(' ')
-
-        if (m.text && m.text.startsWith('#s ')) {
-            texto1 = m.text.replace('#s ', '').trim() || global.packsticker
-        } else if (m.text && m.text === '#s') {
-            texto1 = global.packsticker
-        } else {
-            texto1 = packstickers.text1 || global.packsticker
-        }
 
         if (/webp|image|video/g.test(mime) && q.download) {
             if (/video/.test(mime) && (q.msg || q).seconds > 16)
@@ -56,4 +53,4 @@ export default handler
 
 const isUrl = (text) => {
     return text.match(new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)(jpe?g|gif|png)/, 'gi'))
-          }
+}
