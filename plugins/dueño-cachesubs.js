@@ -5,7 +5,7 @@ var handler = async (m, { conn }) => {
   await conn.reply(m.chat, `Iniciando limpieza de todos los *SubBots*, manteniendo archivos importantes...`, m);
   m.react('🕓');
 
-  const baseDir = './JadiBots/';
+  const baseDir = './Sessions/SubBot/';
   try {
     if (!existsSync(baseDir)) {
       return conn.reply(m.chat, `No existe la carpeta JadiBots.`, m);
