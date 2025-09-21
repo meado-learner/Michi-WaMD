@@ -63,7 +63,7 @@ const handler = async (m, { conn, text, usedPrefix }) => {
 🜸 Link » ${v.play}`
       }));
 
-      await conn.sendSylphy(m.chat, medias, { quoted: m });
+      await conn.sendAdonix(m.chat, medias, { quoted: m });
     }
 
     await m.react('✔️');
