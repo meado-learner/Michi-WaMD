@@ -15,11 +15,10 @@ const handler = async (m, { conn, text, usedPrefix }) => {
 
       const { title, duration, author, created_at, type, images, music, play } = data;
 
-      const caption = `✐ Título » *${title || 'Contenido TikTok'}*
-ⴵ Autor » *${author?.nickname || author?.unique_id || 'No disponible'}*
-✰ Duración » *${duration || 'No disponible'} segundos*
-❒ Fecha » *${created_at || 'No disponible'}*
-🜸 Link » ${text}`;
+      const caption = `✐ Título » ${title || 'Contenido TikTok'}
+ⴵ Autor » ${author?.nickname || author?.unique_id || 'No disponible'}
+✰ Duración » ${duration || 'No disponible'} segundos
+❒ Fecha » ${created_at || 'No disponible'}`;
 
       if (type === 'image' && Array.isArray(images)) {
         const medias = images.map(url => ({ type: 'image', data: { url }, caption }));
@@ -56,10 +55,10 @@ const handler = async (m, { conn, text, usedPrefix }) => {
       const medias = results.slice(0, 10).map(v => ({
         type: 'video',
         data: { url: v.play },
-        caption: `✐ Título » *${v.title || 'Video TikTok'}*
-ⴵ Autor » *${v.author?.nickname || 'Desconocido'}*
-✰ Duración » *${v.duration || 'No disponible'} segundos*
-❒ Formato » *Video*
+        caption: `✐ Título » ${v.title || 'Video TikTok'}
+ⴵ Autor » ${v.author?.nickname || 'Desconocido'}
+✰ Duración » ${v.duration || 'No disponible'} segundos
+❒ Formato » Video
 🜸 Link » ${v.play}`
       }));
 
