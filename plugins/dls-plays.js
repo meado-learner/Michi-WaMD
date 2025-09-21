@@ -3,16 +3,29 @@ import yts from 'yt-search';
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
-    if (!text?.trim()) return conn.reply(m.chat, `❀ Envía el nombre o link del vídeo para descargar.`, m);
+    console.log('[INFO] Comando recibido:', command, 'Texto:', text);
+
+    if (!text?.trim()) {
+      console.log('[WARN] No se envió texto para buscar');
+      return conn.reply(m.chat, `❀ Envía el nombre o link del vídeo para descargar.`, m);
+    }
+
     await m.react('🕒');
+    console.log('[INFO] Emoji de espera enviado');
 
     const videoMatch = text.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/|v\/))([a-zA-Z0-9_-]{11})/);
     const query = videoMatch ? 'https://youtu.be/' + videoMatch[1] : text;
-    const search = await yts(query);
-    const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
+    console.log('[INFO] Query detectada:', query);
 
+    const search = await yts(query);
+    console.log('[INFO] Resultados de búsqueda obtenidos');
+
+    const result = videoMatch ? search.videos.find(v => v.videoId === videoMatch[1]) || search.all[0] : search.all[0];
     if (!result) throw 'ꕥ No se encontraron resultados.';
+
     const { title, seconds, views, url, thumbnail, author } = result;
+    console.log(`[INFO] Video seleccionado: ${title} | ${seconds}s | ${views} vistas | ${url}`);
+
     if (seconds > 1620) throw '⚠ El video supera el límite de duración (27 minutos).';
 
     const vistas = formatViews(views);
@@ -20,8 +33,10 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const canal = author?.name || 'Desconocido';
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
+      console.log('[INFO] Descargando audio...');
       const audioUrl = await getYtmp3(url);
       if (!audioUrl) throw '> ⚠ Algo falló, no se pudo obtener el audio.';
+      console.log('[INFO] URL de audio obtenida:', audioUrl);
 
       const info = `「✦」Descargando *<${title}>*
 
@@ -31,22 +46,20 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 > 🜸 Link » ${url}
 > ⟡ Vistas » *${vistas}*`;
 
-      await conn.sendMessage(m.chat, {
-        image: { url: thumbnail },
-        caption: info
-      }, { quoted: m });
+      console.log('[INFO] Enviando info de audio...');
+      await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
 
-      await conn.sendMessage(m.chat, {
-        audio: { url: audioUrl },
-        fileName: `${title}.mp3`,
-        mimetype: 'audio/mpeg',
-      }, { quoted: m });
+      console.log('[INFO] Enviando audio...');
+      await conn.sendMessage(m.chat, { audio: { url: audioUrl }, fileName: `${title}.mp3`, mimetype: 'audio/mpeg' }, { quoted: m });
 
       await m.react('✔️');
+      console.log('[SUCCESS] Audio enviado correctamente');
 
     } else if (['play2', 'ytv', 'ytmp4', 'mp4'].includes(command)) {
+      console.log('[INFO] Descargando video...');
       const video = await getYtmp4(url);
       if (!video?.data) throw '⚠ Algo falló, no se pudo obtener el video.';
+      console.log('[INFO] Video obtenido');
 
       const info = `「✦」Descargando *<${title}>*
 
@@ -56,23 +69,19 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 > 🜸 Link » ${url}
 > ⟡ Vistas » *${vistas}*`;
 
-      await conn.sendMessage(m.chat, {
-        image: { url: thumbnail },
-        caption: info
-      }, { quoted: m });
+      console.log('[INFO] Enviando info de video...');
+      await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
 
-      await conn.sendMessage(m.chat, {
-        video: video.data,
-        fileName: `${title}.mp4`,
-        mimetype: 'video/mp4',
-        caption: '> » Video descargado correctamente.'
-      }, { quoted: m });
+      console.log('[INFO] Enviando video...');
+      await conn.sendMessage(m.chat, { video: video.data, fileName: `${title}.mp4`, mimetype: 'video/mp4', caption: '> » Video descargado correctamente.' }, { quoted: m });
 
       await m.react('✔️');
+      console.log('[SUCCESS] Video enviado correctamente');
     }
 
   } catch (e) {
     await m.react('✖️');
+    console.error('[ERROR]', e);
     return conn.reply(m.chat, typeof e === 'string' ? e : '⚠ Se produjo un error.\n' + e.message, m);
   }
 };
@@ -85,31 +94,39 @@ export default handler;
 
 async function getYtmp3(url) {
   try {
+    console.log('[INFO] Llamando API YTMP3');
     const endpoint = `https://api-adonix.ultraplus.click/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint, { redirect: 'follow' }).then(r => r.json());
+    console.log('[INFO] Respuesta API YTMP3:', res);
     if (!res?.data?.url) return null;
     return res.data.url;
-  } catch {
+  } catch (err) {
+    console.error('[ERROR] getYtmp3', err);
     return null;
   }
 }
 
 async function getYtmp4(url) {
   try {
+    console.log('[INFO] Llamando API YTMP4');
     const endpoint = `https://api-adonix.ultraplus.click/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint).then(r => r.json());
+    console.log('[INFO] Respuesta API YTMP4:', res);
     if (!res?.data?.url) return null;
 
     const finalUrl = await getFinalUrl(res.data.url);
-    const videoBuffer = await fetch(finalUrl).then(r => r.arrayBuffer());
+    console.log('[INFO] URL final del video:', finalUrl);
 
+    const videoBuffer = await fetch(finalUrl).then(r => r.arrayBuffer());
     return { data: Buffer.from(videoBuffer), url: finalUrl };
-  } catch {
+  } catch (err) {
+    console.error('[ERROR] getYtmp4', err);
     return null;
   }
 }
 
 async function getFinalUrl(url) {
+  console.log('[INFO] Resolviendo URL final...');
   const res = await fetch(url, { method: 'HEAD', redirect: 'follow' });
   return res.url || url;
 }
