@@ -33,13 +33,13 @@ export async function before(m, { conn }) {
         forwardedNewsletterMessageInfo: {
           newsletterJid: channelRD.id,
           serverMessageId: 100,
-          newsletterName: nombreBot,
+          newsletterName: channelRD.name,
         },
         externalAdReply: {
           title: nombreBot,
-          body: "",
+          body: "${dev}",
           thumbnailUrl: bannerFinal,
-          sourceUrl: "myapiadonix.vercel.app",
+          sourceUrl: "api-adonix.ultraplus.click",
           mediaType: 1,
           renderLargerThumbnail: false
         }
