@@ -22,11 +22,37 @@ this.pushMessage(chatUpdate.messages).catch(console.error)
 let m = chatUpdate.messages[chatUpdate.messages.length - 1]
 if (!m) return
 if (global.db.data == null)
-await global.loadDatabase()
 try {
-m = smsg(this, m) || m
-if (!m) return
-m.exp = 0
+        m = smsg(this, m) || m
+        if (!m) return
+
+        
+        let prefixRegex = global.prefix 
+        try {
+          const senderNumber = this.user.jid.split('@')[0]
+          const botPath = path.join('./Sessions/SubBot', senderNumber)
+          const configPath = path.join(botPath, 'config.json')
+
+          if (fs.existsSync(configPath)) {
+            const config = JSON.parse(fs.readFileSync(configPath))
+            if (config.prefix) {
+              if (config.prefix === 'multi') {
+                prefixRegex = new RegExp('^[#$@*&?,;:+×!_\\-¿.]')
+              } else {
+                let safe = [...config.prefix].map(c =>
+                  c.replace(/([.*+?^${}()|\[\]\\])/g, '\\$1')
+                )
+                prefixRegex = new RegExp('^(' + safe.join('|') + ')')
+              }
+            }
+          }
+        } catch (e) {
+          console.error('🍁 Error cargando prefijo del subbot:', e)
+        }
+
+        m.exp = 0
+        m.coin = false
+
 try {
 let user = global.db.data.users[m.sender]
 if (typeof user !== "object")
