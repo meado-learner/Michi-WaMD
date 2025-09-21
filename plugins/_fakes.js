@@ -6,17 +6,21 @@ import moment from 'moment-timezone'
 const { generateWAMessageFromContent, prepareWAMessageMedia, proto } = pkg
 
 var handler = m => m
-handler.all = async function (m) { 
-    
-    let botNameToShow = global.botname
-    let bannerUrl = icono || global.michipg
+handler.all = async function (m, { conn }) { 
+
+    // --- Primero leemos nombre y banner del subbot si existe ---
+    let botNameToShow = global.botname || "Bot"
+    let bannerUrl = global.michipg || icono || ""
+
     try {
-        const senderBotNumber = conn.user.jid.split('@')[0]
-        const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
-        if (fs.existsSync(configPath)) {
-            const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
-            if (subBotConfig.name) botNameToShow = subBotConfig.name
-            if (subBotConfig.banner) bannerUrl = subBotConfig.banner
+        if (conn && conn.user && conn.user.jid) {
+            const senderBotNumber = conn.user.jid.split('@')[0]
+            const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
+            if (fs.existsSync(configPath)) {
+                const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+                if (subBotConfig.name) botNameToShow = subBotConfig.name
+                if (subBotConfig.banner) bannerUrl = subBotConfig.banner
+            }
         }
     } catch(e) { console.error('Error leyendo subbot config:', e) }
 
@@ -55,7 +59,7 @@ handler.all = async function (m) {
     global.rcanal = { 
         contextInfo: { 
             isForwarded: true, 
-            forwardedNewsletterMessageInfo: { newsletterJid: channelRD.id, serverMessageId: '', newsletterName: channelRD.name }, 
+            forwardedNewsletterMessageInfo: { newsletterJid: global.channelRD.id, serverMessageId: '', newsletterName: global.channelRD.name }, 
             externalAdReply: { 
                 title: botNameToShow, 
                 body: dev, 
@@ -79,8 +83,8 @@ function pickRandom(list) {
 }
 
 async function getRandomChannel() {
-    let randomIndex = Math.floor(Math.random() * canalIdM.length)
-    let id = canalIdM[randomIndex]
-    let name = canalNombreM[randomIndex]
+    let randomIndex = Math.floor(Math.random() * global.canalIdM.length)
+    let id = global.canalIdM[randomIndex]
+    let name = global.canalNombreM[randomIndex]
     return { id, name }
 }
