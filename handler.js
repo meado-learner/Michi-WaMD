@@ -30,7 +30,7 @@ try {
         let prefixRegex = global.prefix 
         try {
           const senderNumber = this.user.jid.split('@')[0]
-          const botPath = path.join('./Sessions/SubBot/', senderNumber)
+          const botPath = path.join('./Sessions/SubBot', senderNumber)
           const configPath = path.join(botPath, 'config.json')
 
           if (fs.existsSync(configPath)) {
