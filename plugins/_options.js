@@ -83,7 +83,7 @@ chat[type] = isEnable
 conn.reply(m.chat, `> ➬ Has *${isEnable ? 'activado' : 'desactivado'}* *${type}* en este grupo.`, m)
 }
 
-handler.help = ['welcome', 'bienvenida', 'modoadmin', 'onlyadmin', 'nsfw', 'modohorny', 'economy', 'economia', 'rpg', 'gacha', 'detect', 'alertas', 'antilink', 'antienlace', 'antilinks', 'antienlaces']
+handler.help = ['welcome', 'bienvenida', 'modoadmin', 'onlyadmin', 'nsfw', 'modohorny', 'detect', 'alertas', 'antilink', 'antienlace', 'antilinks', 'antienlaces']
 handler.tags = ['nable']
 handler.command = ['welcome', 'bienvenida', 'modoadmin', 'onlyadmin', 'nsfw', 'modohorny', 'economy', 'economia', 'rpg', 'gacha', 'detect', 'alertas', 'antilink', 'antienlace', 'antilinks', 'antienlaces']
 handler.group = true
