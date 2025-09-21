@@ -4,7 +4,7 @@
 
 ## 🤍 ¿Qué es Michi-WaMD?
 
-**Michi-WaMD** es un bot para WhatsApp enfocado en la diversión, utilidad y automatización de tareas, construido usando el framework [WaMD](https://github.com/adiwajshing/Baileys) para interactuar con WhatsApp Web.
+**Michi-WaMD** es un bot para WhatsApp enfocado en la diversión, utilidad y automatización de tareas, construido usando Baileys (https://github.com/adiwajshing/Baileys) para interactuar con WhatsApp Web.
 
 ---
 
@@ -35,3 +35,4 @@ npm start
 ## 📢 Créditos
 
 Creado por [meado-learner](https://github.com/meado-learner)
+
