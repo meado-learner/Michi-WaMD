@@ -31,7 +31,7 @@ var handler = async (m, { conn, text }) => {
 
 // Función para obtener grupos
 async function getGrupos(tema) {
-  const url = `https://www.gruposwats.com/${encodeURIComponent(tema)}.html`
+  const url = `https://www.gruposwats.com/`
   const html = await fetchLatin1(url)
   const $ = cheerio.load(html)
   const grupos = []
@@ -43,7 +43,7 @@ async function getGrupos(tema) {
     const img = $(el).find('img.img_grupowasap').attr('src')
     const link = $(el).find('a.btn-unirse').attr('href') || $(el).find('a').attr('href')
 
-    if (nombre && link) {
+    if (nombre && link && nombre.toLowerCase().includes(tema.toLowerCase())) {
       grupos.push({
         nombre,
         descripcion,
