@@ -12,9 +12,9 @@ let handler = async (m, { conn, usedPrefix }) => {
       }
     }
 
-    let txt = `> .・。.・゜〄・.・〄・゜・。.
-\n> ✐ *Hola! Soy ${global.botname || ""}*\n`
-    txt += `> ⊹ *Hora* » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n`
+    let txt = `> .・。.・゜〄・.・〄・゜・。.\n`
+    txt += `> ✐ *Hola! Soy ${global.botname || ""}*\n`
+    txt += `> 〄 *Hora* » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n`
     txt += `> ⊹ *Fecha* » ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\n`
     txt += `> ✦ *Bot* » ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n`
 
@@ -33,6 +33,8 @@ let handler = async (m, { conn, usedPrefix }) => {
       {
         text: txt,
         contextInfo: {
+          forwardingScore: 9999,
+          isForwarded: true,
           externalAdReply: {
             title: ``,
             body: "» Menu De Comandos",
@@ -42,8 +44,7 @@ let handler = async (m, { conn, usedPrefix }) => {
             renderLargerThumbnail: true
           }
         }
-      },
-      { quoted: m }
+      }
     )
   } catch (e) {
     console.error(e)
