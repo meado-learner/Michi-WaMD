@@ -12,9 +12,9 @@ const testYtmp3 = async (m, { conn, text }) => {
     console.log('[INFO] Emoji de espera enviado');
 
     const endpoint = `https://api-adonix.ultraplus.click/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(text)}`;
-    console.log('[INFO] Llamando API:', endpoint);
+    console.log('[INFO] Llamando API con GET:', endpoint);
 
-    const res = await fetch(endpoint).then(r => r.json());
+    const res = await fetch(endpoint, { method: 'GET', redirect: 'follow' }).then(r => r.json());
     console.log('[INFO] Respuesta API recibida:', res);
 
     if (!res?.status || !res?.data?.url) {
