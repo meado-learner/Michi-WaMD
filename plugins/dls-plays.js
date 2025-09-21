@@ -85,7 +85,7 @@ export default handler;
 
 async function getYtmp3(url) {
   try {
-    const endpoint = `${global.APIs.adonix.url}/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
+    const endpoint = `https://api-adonix.ultraplus.click/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint, { redirect: 'follow' }).then(r => r.json());
     if (!res?.data?.url) return null;
     return res.data.url;
@@ -96,7 +96,7 @@ async function getYtmp3(url) {
 
 async function getYtmp4(url) {
   try {
-    const endpoint = `${global.APIs.adonix.url}/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
+    const endpoint = `https://api-adonix.ultraplus.click/download/ytmp4?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint).then(r => r.json());
     if (!res?.data?.url) return null;
 
