@@ -1,4 +1,6 @@
 import moment from "moment-timezone"
+import fs from "fs"
+import path from "path"
 
 let handler = async (m, { conn, usedPrefix }) => {
   try {
@@ -18,8 +20,18 @@ let handler = async (m, { conn, usedPrefix }) => {
     let seconds = Math.floor(uptimeSec % 60)
     let uptimeStr = `${hours}h ${minutes}m ${seconds}s`
 
+    let botNameToShow = global.botname || ""
+    const senderBotNumber = conn.user.jid.split('@')[0]
+    const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
+    if (fs.existsSync(configPath)) {
+      try {
+        const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
+        if (subBotConfig.name) botNameToShow = subBotConfig.name
+      } catch (e) { console.error(e) }
+    }
+
     let txt = `> .・。.・゜〄・.・〄・゜・。.\n`
-    txt += `> ✐ *Hola! Soy ${global.botname || ""}*\n`
+    txt += `> ✐ *Hola! Soy ${botNameToShow}*\n`
     txt += `> ⊹ *Hora* » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n`
     txt += `> ⊹ *Fecha* » ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\n`
     txt += `> ✦ *Bot* » ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n`
@@ -55,6 +67,7 @@ let handler = async (m, { conn, usedPrefix }) => {
       },
       { quoted: m } 
     )
+
   } catch (e) {
     console.error(e)
     conn.reply(m.chat, "» Ocurrió un error.", m)
