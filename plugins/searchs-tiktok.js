@@ -58,8 +58,7 @@ const handler = async (m, { conn, text, usedPrefix }) => {
         caption: `✐ Título » ${v.title || 'Video TikTok'}
 ⴵ Autor » ${v.author?.nickname || 'Desconocido'}
 ✰ Duración » ${v.duration || 'No disponible'} segundos
-❒ Formato » Video
-🜸 Link » ${v.play}`
+❒ Formato » Video`
       }));
 
       await conn.sendAdonix(m.chat, medias, { quoted: m });
