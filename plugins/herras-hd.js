@@ -38,7 +38,7 @@ let handler = async (m, { conn, usedPrefix, command }) => {
     if (!uploadRes.ok) throw new Error('Error al subir la imagen')
     const uploadedUrl = await uploadRes.text()
 
-    const apiUrl = `https://api-adonix.ultraplus.click/canvas/hd?apikey=Adofreekey&url=${encodeURIComponent(uploadedUrl)}`
+    const apiUrl = `https://api-adonix.gleeze.com/canvas/hd?apikey=Adofreekey&url=${encodeURIComponent(uploadedUrl)}`
     const res = await fetch(apiUrl)
     if (!res.ok) throw new Error('Error al mejorar la imagen')
     const buffer = await res.buffer()
