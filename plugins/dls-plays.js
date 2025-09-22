@@ -111,16 +111,16 @@ async function drawThumbnailWithProgress(thumbnailUrl, info) {
   ctx.textAlign='left';
   ctx.textBaseline='top';
   let title = info.title.length>50 ? info.title.slice(0,50)+'…': info.title;
-  ctx.fillText(`🖊️ ${title}`,20,img.height-infoHeight+20);
+  ctx.fillText(`${title}`,20,img.height-infoHeight+20);
 
   ctx.font='24px sans-serif';
   ctx.fillStyle='#CCCCCC';
-  ctx.fillText(`📺 ${info.canal} | ⏱️ ${info.duracion}`,20,img.height-infoHeight+70);
-  ctx.fillText(`👀 ${info.vistas} | 🎵 ${info.calidad}`,20,img.height-infoHeight+110);
+  ctx.fillText(`${info.canal} | ${info.duracion}`,20,img.height-infoHeight+70);
+  ctx.fillText(`${info.vistas} | ${info.calidad}`,20,img.height-infoHeight+110);
 
   ctx.font='20px sans-serif';
   ctx.fillStyle='#AAAAAA';
-  ctx.fillText(`🔗 ${info.url}`,20,img.height-infoHeight+150);
+  ctx.fillText(`${info.url}`,20,img.height-infoHeight+150);
 
   
   const progressWidth = img.width - 40;
