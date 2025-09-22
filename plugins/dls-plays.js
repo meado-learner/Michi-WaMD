@@ -1,5 +1,9 @@
 import fetch from "node-fetch";
 import yts from 'yt-search';
+import { createCanvas, loadImage, registerFont } from 'canvas';
+
+
+// registerFont('./fonts/Roboto-Bold.ttf', { family: 'Roboto' });
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
@@ -26,11 +30,21 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const { title, seconds, views, url, thumbnail, author } = result;
     console.log(`[INFO] Video seleccionado: ${title} | ${seconds}s | ${views} vistas | ${url}`);
 
-    if (seconds > 2400) throw '> ❐ Lo sentimos, este video excede la duración máxima de 40 minutos. Esta limitación se aplica para evitar saturación en el bot y garantizar un rendimiento estable.';
-    
+    if (seconds > 2400) throw '> ❐ Lo sentimos, este video excede la duración máxima de 40 minutos.';
+
     const vistas = formatViews(views);
     const duracion = formatDuration(seconds);
     const canal = author?.name || 'Desconocido';
+
+    const info = `「✦」Descargando *<${title}>*
+> ✐ Canal » *${canal}*
+> ⴵ Duración » *${duracion}*
+> ✰ Calidad » *${['play','yta','ytmp3','playaudio'].includes(command) ? '128k' : '360p'}*
+> 🜸 Link » ${url}
+> ⟡ Vistas » *${vistas}*`;
+
+    // Genera miniatura con info
+    const thumbWithText = await drawThumbnailWithText(thumbnail, info);
 
     if (['play', 'yta', 'ytmp3', 'playaudio'].includes(command)) {
       console.log('[INFO] Descargando audio...');
@@ -38,16 +52,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       if (!audioUrl) throw '> ⚠ Algo falló, no se pudo obtener el audio.';
       console.log('[INFO] URL de audio obtenida:', audioUrl);
 
-      const info = `「✦」Descargando *<${title}>*
-
-> ✐ Canal » *${canal}*
-> ⴵ Duración » *${duracion}*
-> ✰ Calidad: *128k*
-> 🜸 Link » ${url}
-> ⟡ Vistas » *${vistas}*`;
-
-      console.log('[INFO] Enviando info de audio...');
-      await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
+      console.log('[INFO] Enviando miniatura con info...');
+      await conn.sendMessage(m.chat, { image: thumbWithText, caption: '> Audio listo para reproducir' }, { quoted: m });
 
       console.log('[INFO] Enviando audio...');
       await conn.sendMessage(m.chat, { audio: { url: audioUrl }, fileName: `${title}.mp3`, mimetype: 'audio/mpeg', ptt: false }, { quoted: m });
@@ -61,16 +67,8 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       if (!video?.data) throw '⚠ Algo falló, no se pudo obtener el video.';
       console.log('[INFO] Video obtenido');
 
-      const info = `「✦」Descargando *<${title}>*
-
-> ✐ Canal » *${canal}*
-> ⴵ Duración » *${duracion}*
-> ✰ Calidad: *360p*
-> 🜸 Link » ${url}
-> ⟡ Vistas » *${vistas}*`;
-
-      console.log('[INFO] Enviando info de video...');
-      await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
+      console.log('[INFO] Enviando miniatura con info...');
+      await conn.sendMessage(m.chat, { image: thumbWithText, caption: '> Video listo para descargar' }, { quoted: m });
 
       console.log('[INFO] Enviando video...');
       await conn.sendMessage(m.chat, { video: video.data, fileName: `${title}.mp4`, mimetype: 'video/mp4', caption: '> » Video descargado correctamente.' }, { quoted: m });
@@ -91,6 +89,8 @@ handler.tags = ['descargas'];
 handler.group = true;
 
 export default handler;
+
+// ================= FUNCIONES AUX =================
 
 async function getYtmp3(url) {
   try {
@@ -143,4 +143,32 @@ function formatDuration(seconds) {
   const min = Math.floor(seconds / 60);
   const sec = seconds % 60;
   return `${min} minutos ${sec} segundos`;
+}
+
+// ================= CANVAS =================
+
+async function drawThumbnailWithText(thumbnailUrl, infoText) {
+  const img = await loadImage(thumbnailUrl);
+  const canvas = createCanvas(img.width, img.height);
+  const ctx = canvas.getContext('2d');
+
+  
+  ctx.drawImage(img, 0, 0);
+
+  
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+  ctx.fillRect(0, img.height - 140, img.width, 140);
+
+  
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '28px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+
+  const lines = infoText.split('\n');
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 20, img.height - 130 + i * 32);
+  });
+
+  return canvas.toBuffer();
 }
