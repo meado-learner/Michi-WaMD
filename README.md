@@ -17,13 +17,7 @@
 ---
 
 「✦」Instalación rápida
-
-```bash
-git clone https://github.com/meado-learner/Michi-WaMD.git
-cd Michi-WaMD
-npm install
-npm start
-```
+⟩ Este bot no tendra compatibilidad con termux ni cloudshell, por lo tanto pronto tendra su web donde podran conectarse.
 
 ---
 
@@ -37,3 +31,4 @@ npm start
 「✦」Créditos
 
 > ✐ Creado por [meado-learner](https://github.com/meado-learner)
+
