@@ -9,7 +9,7 @@ import ws from "ws"
 
 const { proto } = (await import("@whiskeysockets/baileys")).default
 const isNumber = x => typeof x === "number" && !isNaN(x)
-const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, ms))
+const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(resolve, ms)))
 
 // Cache de prefijo personalizado para evitar lecturas repetidas de disco
 let cachedPrefix = null;
@@ -111,10 +111,10 @@ export async function handler(chatUpdate) {
         const conn = m.conn || global.conn;
         const setting = global.db.data.settings[conn?.user?.jid];
 
-        const isROwner = [...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
-        const isOwner = isROwner || m.fromMe;
-        const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender);
-        const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender) || user.premium === true;
+        const isROwner = [...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
+        const isOwner = isROwner || m.fromMe
+        const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
+        const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender) || user.premium == true
 
         if (opts["nyimak"]) return;
         if (!m.fromMe && !isMods && setting["self"]) return;
@@ -180,8 +180,17 @@ export async function handler(chatUpdate) {
                 [[new RegExp(strRegex(pluginPrefix)).exec(m.text), new RegExp(strRegex(pluginPrefix))]] :
                 [[[], new RegExp()]])
                 .find(prefix => prefix[1]);
-
+                
             if (!match) continue;
+
+            // Definimos isAccept aquí
+            const isAccept = plugin.command instanceof RegExp ?
+                plugin.command.test(command) :
+                Array.isArray(plugin.command) ?
+                plugin.command.some(cmd => cmd instanceof RegExp ?
+                    cmd.test(command) : cmd === command) :
+                typeof plugin.command === "string" ?
+                plugin.command === command : false;
 
             if (typeof plugin.before === "function") {
                 if (await plugin.before.call(this, m, {
