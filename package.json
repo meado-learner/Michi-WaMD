@@ -53,6 +53,7 @@
 "performance-now": "^2.1.0",
 "pino": "^8.6.1",
 "qrcode": "^1.5.1",
+"qs": "^6.13.0",
 "ruhend-scraper": "^7.0.4",
 "syntax-error": "^1.4.0",
 "terminal-image": "^2.0.0",
