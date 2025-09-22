@@ -20,9 +20,9 @@ let handler = async (m, { conn, usedPrefix }) => {
     let seconds = Math.floor(uptimeSec % 60)
     let uptimeStr = `${hours}h ${minutes}m ${seconds}s`
 
-    
     let botNameToShow = global.botname || ""
     let bannerUrl = global.michipg || ""
+    let videoUrl = null
 
     const senderBotNumber = conn.user.jid.split('@')[0]
     const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
@@ -30,7 +30,8 @@ let handler = async (m, { conn, usedPrefix }) => {
       try {
         const subBotConfig = JSON.parse(fs.readFileSync(configPath, 'utf-8'))
         if (subBotConfig.name) botNameToShow = subBotConfig.name
-        if (subBotConfig.banner) bannerUrl = subBotConfig.banner // si existe banner personalizado lo usamos
+        if (subBotConfig.banner) bannerUrl = subBotConfig.banner
+        if (subBotConfig.video) videoUrl = subBotConfig.video
       } catch (e) { console.error(e) }
     }
 
@@ -51,25 +52,35 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     txt += `> : *Actividad* » ${uptimeStr}`
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: txt,
-        contextInfo: {
-          forwardingScore: 9999,
-          isForwarded: true,
-          externalAdReply: {
-            title: `${botNameToShow}, mᥲძᥱ ᥕі𝗍һ ᑲᥡ 𝗔𝗱𝗼`,
-            body: "» Menu De Comandos",
-            thumbnailUrl: bannerUrl,
-            sourceUrl: "https://whatsapp.com/channel/0029VaS0g4T1jQZ2VwVJCe0P",
-            mediaType: 1,
-            renderLargerThumbnail: true
-          }
-        }
-      },
-      { quoted: m } 
-    )
+    if (videoUrl) {
+      await conn.sendMessage(
+        m.chat,
+        {
+          video: { url: videoUrl },
+          caption: txt,
+          gifPlayback: true
+        },
+        { quoted: m }
+      )
+    } else if (bannerUrl) {
+      await conn.sendMessage(
+        m.chat,
+        {
+          image: { url: bannerUrl },
+          caption: txt
+        },
+        { quoted: m }
+      )
+    } else {
+      await conn.sendMessage(
+        m.chat,
+        {
+          image: { url: global.michipg },
+          caption: txt
+        },
+        { quoted: m }
+      )
+    }
 
   } catch (e) {
     console.error(e)
