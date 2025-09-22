@@ -5,7 +5,7 @@ var handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await m.react('🕒')
 
-    const endpoint = `${global.APIs.adonix.url}/download/tiktok?apikey=Adofreekey&url=${encodeURIComponent(text)}`
+    const endpoint = `https://api-adonix.gleeze.com/download/tiktok?apikey=Adofreekey&url=${encodeURIComponent(text)}`
     const res = await fetch(endpoint).then(r => r.json())
     if (!res?.status || !res?.data) throw '⚠︎ No se pudo obtener la información del TikTok.'
 
