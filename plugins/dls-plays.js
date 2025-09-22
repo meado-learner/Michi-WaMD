@@ -1,6 +1,9 @@
 import fetch from "node-fetch";
 import yts from 'yt-search';
 import { createCanvas, loadImage } from 'canvas';
+import { spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const handler = async (m, { conn, text, command }) => {
   try {
@@ -28,9 +31,38 @@ const handler = async (m, { conn, text, command }) => {
     if (['play', 'yta', 'ytmp3','playaudio'].includes(command)) {
       const audioUrl = await getYtmp3(url);
       if (!audioUrl) throw '⚠ Algo falló, no se pudo obtener el audio.';
+
+      const tempPath = path.join('./tmp', `${title}.mp3`);
+      const pttPath = path.join('./tmp', `${title}_ptt.ogg`);
+
+      if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp');
+
+      
+      const audioBuffer = Buffer.from(await fetch(audioUrl).then(r=>r.arrayBuffer()));
+      fs.writeFileSync(tempPath, audioBuffer);
+
+      
+      await new Promise((resolve, reject) => {
+        const ff = spawn('ffmpeg', [
+          '-y',
+          '-i', tempPath,
+          '-af', 'bass=g=6,dynaudnorm=f=200', 
+          '-c:a', 'libopus',
+          '-b:a', '128k',
+          '-vbr', 'on',
+          pttPath
+        ]);
+
+        ff.on('close', code => code === 0 ? resolve() : reject('⚠ Error al procesar audio con ffmpeg'));
+      });
+
       await conn.sendMessage(m.chat, { image: thumbWithText, caption: '> Procesando tu pedido..' }, { quoted: m });
-      await conn.sendMessage(m.chat, { audio: { url: audioUrl }, fileName: `${title}.mp3`, mimetype: 'audio/mpeg', ptt: false }, { quoted: m });
+      await conn.sendMessage(m.chat, { audio: fs.readFileSync(pttPath), mimetype: 'audio/ogg', ptt: true }, { quoted: m });
       await m.react('✔️');
+
+      
+      fs.unlinkSync(tempPath);
+      fs.unlinkSync(pttPath);
 
     } else if (['play2', 'ytv', 'ytmp4','mp4'].includes(command)) {
       const video = await getYtmp4(url);
@@ -122,7 +154,6 @@ async function drawThumbnailWithProgress(thumbnailUrl, info) {
   ctx.fillStyle='#AAAAAA';
   ctx.fillText(`${info.url}`,20,img.height-infoHeight+150);
 
-  
   const progressWidth = img.width - 40;
   const progressHeight = 10;
   const steps = 20;
