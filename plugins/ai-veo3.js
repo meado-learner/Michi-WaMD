@@ -17,8 +17,6 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     const caption = `「✦」Veo3 Generator
 
 ✐ Prompt » *${text}*
-ⴵ Creador » *${data.creator || 'Desconocido'}*
-✰ ID de sesión » *${data.recordId || 'N/A'}*
 🜸 Fuente » *Adonix API*`;
 
     await conn.sendMessage(m.chat, {
