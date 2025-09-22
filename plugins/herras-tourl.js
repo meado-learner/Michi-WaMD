@@ -26,6 +26,9 @@ let handler = async (m, { conn }) => {
 };
 
 handler.command = ['tourl'];
+handler.tags = ['herramientas'];
+handler.help = ['tourl']
+
 export default handler;
 
 async function maybox(content, mime) {
