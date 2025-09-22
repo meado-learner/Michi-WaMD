@@ -6,7 +6,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
   try {
     await m.react("🕓");
 
-    const url = `https://api-adonix.ultraplus.click/ai/veo3?apikey=Adofreekey&prompt=${encodeURIComponent(text)}`;
+    const url = `https://api-adonix.gleeze.com/ai/veo3?apikey=Adofreekey&prompt=${encodeURIComponent(text)}`;
     const res = await fetch(url);
     const data = await res.json();
 
