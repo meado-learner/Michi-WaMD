@@ -24,6 +24,9 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const duracion = formatDuration(seconds)
     const canal = author?.name || "Desconocido"
 
+    
+    limpiarTmp()
+
     if (["play", "yta", "ytmp3", "playaudio", "mp3"].includes(command)) {
       const audioUrl = await getYtmp3(url)
       if (!audioUrl) throw "> ⚠ No se pudo obtener el audio."
@@ -100,6 +103,17 @@ handler.tags = ["descargas"]
 handler.group = true
 
 export default handler
+
+// limpia la carpeta ./tmp
+function limpiarTmp() {
+  const tmpDir = path.join("./tmp")
+  if (!fs.existsSync(tmpDir)) return
+  for (let file of fs.readdirSync(tmpDir)) {
+    try {
+      fs.unlinkSync(path.join(tmpDir, file))
+    } catch {}
+  }
+}
 
 async function getYtmp3(url) {
   try {
