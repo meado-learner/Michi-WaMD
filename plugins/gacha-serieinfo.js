@@ -7,7 +7,7 @@ const verifi = async () => {
   try {
     const _0x1b08e7 = await _0x174608.readFile('./package.json', "utf-8");
     const _0x1fe4a3 = JSON.parse(_0x1b08e7);
-    return _0x1fe4a3.repository?.['url'] === "git+https://github.com/The-King-Destroy/YukiBot-MD.git";
+    return _0x1fe4a3.repository?.['url'] === "git+https://github.com/meado-learner/Michi-WaMD.git";
   } catch {
     return false;
   }
@@ -19,7 +19,7 @@ const handler = async (_0x3efd03, {
   command: _0x3972c5
 }) => {
   if (!(await verifi())) {
-    return _0x1a915e.reply(_0x3efd03.chat, "❀ El comando *<" + _0x3972c5 + ">* solo está disponible para Yuki Suou.\n> https://github.com/The-King-Destroy/YukiBot-MD", _0x3efd03);
+    return _0x1a915e.reply(_0x3efd03.chat, "❀ El comando *<" + _0x3972c5 + ">* solo está disponible para Michi.", _0x3efd03);
   }
   try {
     if (!global.db.data.chats?.[_0x3efd03.chat]?.["gacha"] && _0x3efd03.isGroup) {
