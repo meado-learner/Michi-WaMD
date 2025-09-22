@@ -7,8 +7,8 @@ let handler = async (m, { conn, usedPrefix }) => {
     let menu = {}
     for (let plugin of Object.values(global.plugins)) {
       if (!plugin || !plugin.help) continue
-      let taglist = plugin.tags || []
-      for (let tag of taglist) {
+      let tags = plugin.tags || []
+      for (let tag of tags) {
         if (!menu[tag]) menu[tag] = []
         menu[tag].push(plugin)
       }
@@ -22,7 +22,6 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     let botNameToShow = global.botname || ""
     let bannerUrl = global.michipg || ""
-
     const senderBotNumber = conn.user.jid.split('@')[0]
     const configPath = path.join('./Sessions/SubBot', senderBotNumber, 'config.json')
     if (fs.existsSync(configPath)) {
@@ -35,43 +34,37 @@ let handler = async (m, { conn, usedPrefix }) => {
 
     let sections = []
     let firstSection = true
-
     for (let tag in menu) {
       let rows = menu[tag].flatMap(plugin =>
         plugin.help.map(cmd => ({
           title: `${usedPrefix}${cmd}`,
-          description: '' // puedes agregar descripción si quieres
+          rowId: `${usedPrefix}${cmd}`,
+          description: '' 
         }))
       )
 
-      let sectionTitle = firstSection 
-        ? `> .・。.・゜〄・.・〄・゜・。.\n> ✐ Hola! Soy ${botNameToShow}\n> ⊹ Hora » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n> ⊹ Fecha » ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\n> ✦ Bot » ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n*${tag.toUpperCase()}*`
-        : `*${tag.toUpperCase()}*`
+      let title = firstSection 
+        ? `Hola! Soy ${botNameToShow}\nHora: ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\nFecha: ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\nBot: ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n${tag.toUpperCase()}`
+        : tag.toUpperCase()
 
-      sections.push({
-        title: sectionTitle,
-        rows
-      })
-
+      sections.push({ title, rows })
       firstSection = false
     }
 
-    await conn.sendMessage(
-      m.chat,
-      {
-        text: 'Selecciona un comando',
-        image: { url: bannerUrl },
-        footer: `Actividad: ${uptimeStr}`,
-        templateButtons: sections.map(sec => ({
-          index: 1,
-          urlButton: {
-            displayText: sec.title,
-            url: "#" // si quieres algo clickeable, o lo puedes dejar vacío
-          }
-        }))
-      },
-      { quoted: m }
-    )
+    const listMessage = {
+      text: 'Selecciona un comando 👇',
+      footer: `Actividad: ${uptimeStr}`,
+      title: '',
+      buttonText: 'Abrir menú',
+      sections: sections.map(sec => ({
+        title: sec.title,
+        rows: sec.rows
+      })),
+      headerType: 4,
+      image: { url: bannerUrl }
+    }
+
+    await conn.sendMessage(m.chat, listMessage, { quoted: m })
 
   } catch (e) {
     console.error(e)
