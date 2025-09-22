@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import crypto from "crypto";
-import { FormData, Blob } from "formdata-node";
+import { FormData, Blob, File } from "formdata-node";
 import { fileTypeFromBuffer } from "file-type";
 
 let handler = async (m, { conn }) => {
@@ -14,9 +14,9 @@ let handler = async (m, { conn }) => {
     let media = await q.download();
     let linkData = await maybox(media, mime);
 
-    if (!linkData?.data?.url) throw '✐ No se pudo subir el archivo';
+    if (!linkData?.url) throw '✐ No se pudo subir el archivo';
 
-    await conn.reply(m.chat, linkData.data.url, m, rcanal);
+    await conn.reply(m.chat, linkData.url, m, rcanal);
     await m.react('✅');
   } catch (err) {
     console.error(err);
@@ -28,13 +28,12 @@ let handler = async (m, { conn }) => {
 handler.command = ['tourl'];
 export default handler;
 
-// --- Funciones auxiliares ---
 async function maybox(content, mime) {
   const { ext } = (await fileTypeFromBuffer(content)) || { ext: 'bin' };
-  const blob = new Blob([content.toArrayBuffer()], { type: mime });
-  const form = new FormData();
   const filename = `${Date.now()}-${crypto.randomBytes(3).toString('hex')}.${ext}`;
-  form.append('file', blob, filename);
+  const form = new FormData();
+  const blob = new Blob([content], { type: mime });
+  form.append('file', new File([blob], filename, { type: mime }));
 
   const res = await fetch('https://adonixfiles.mywire.org/upload', {
     method: 'POST',
@@ -44,5 +43,6 @@ async function maybox(content, mime) {
     }
   });
 
+  if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
   return await res.json();
 }
