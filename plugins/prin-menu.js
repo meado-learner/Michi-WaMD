@@ -35,10 +35,9 @@ let handler = async (m, { conn, usedPrefix }) => {
     }
 
     let txt = `> .・。.・゜〄・.・〄・゜・。.\n`
-    txt += `> ✐ *Hola! Soy ${botNameToShow}*\n`
+    txt += `✐ *Hola! Soy ${botNameToShow}* ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n`
     txt += `> ⊹ *Hora* » ${moment.tz("America/Tegucigalpa").format("HH:mm:ss")}\n`
-    txt += `> ⊹ *Fecha* » ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\n`
-    txt += `> ✦ *Bot* » ${(conn.user.jid == global.conn.user.jid ? 'Principal 🅥' : 'Sub Bot 🅑')}\n\n`
+    txt += `> ⊹ *Fecha* » ${moment.tz("America/Tegucigalpa").format("DD/MM/YYYY")}\n\n`
 
     for (let tag in menu) {
       txt += `➭ *✿》${tag.toUpperCase()}《✿*\n`
