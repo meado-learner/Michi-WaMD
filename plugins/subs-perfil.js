@@ -10,7 +10,7 @@ const handler = async (m, { conn, command, usedPrefix, text }) => {
 
     switch (command) {
       case 'setpfp':
-      case 'setimage': {
+      case 'setimg': {
         const q = m.quoted || m;
         const mime = (q.msg || q).mimetype || '';
         if (!/image\/(png|jpe?g)/.test(mime)) {
@@ -52,7 +52,7 @@ const handler = async (m, { conn, command, usedPrefix, text }) => {
   }
 };
 
-handler.help = ['setpfp', 'setimage', 'setstatus', 'setbio', 'setusername', 'setuser'];
+handler.help = ['setpfp', 'setbio', 'setuser'];
 handler.tags = ['serbot'];
 handler.command = ['setpfp', 'setimage', 'setstatus', 'setbio', 'setusername', 'setuser'];
 
