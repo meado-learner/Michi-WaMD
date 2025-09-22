@@ -32,27 +32,26 @@ const handler = async (m, { conn, text, command }) => {
       const audioUrl = await getYtmp3(url);
       if (!audioUrl) throw '⚠ Algo falló, no se pudo obtener el audio.';
 
-      const tempPath = path.join('./tmp', `${title}.mp3`);
-      const pttPath = path.join('./tmp', `${title}_ptt.ogg`);
+      if (!fs.existsSync('./temp')) {
+        fs.mkdirSync('./temp', { recursive: true });
+      }
 
-      if (!fs.existsSync('./tmp')) fs.mkdirSync('./tmp');
+      const tempPath = path.join('./temp', `${title}.mp3`);
+      const pttPath = path.join('./temp', `${title}_ptt.ogg`);
 
-      
       const audioBuffer = Buffer.from(await fetch(audioUrl).then(r=>r.arrayBuffer()));
       fs.writeFileSync(tempPath, audioBuffer);
 
-      
       await new Promise((resolve, reject) => {
         const ff = spawn('ffmpeg', [
           '-y',
           '-i', tempPath,
-          '-af', 'bass=g=6,dynaudnorm=f=200', 
+          '-af', 'bass=g=6,dynaudnorm=f=200',
           '-c:a', 'libopus',
           '-b:a', '128k',
           '-vbr', 'on',
           pttPath
         ]);
-
         ff.on('close', code => code === 0 ? resolve() : reject('⚠ Error al procesar audio con ffmpeg'));
       });
 
@@ -60,7 +59,6 @@ const handler = async (m, { conn, text, command }) => {
       await conn.sendMessage(m.chat, { audio: fs.readFileSync(pttPath), mimetype: 'audio/ogg', ptt: true }, { quoted: m });
       await m.react('✔️');
 
-      
       fs.unlinkSync(tempPath);
       fs.unlinkSync(pttPath);
 
