@@ -108,8 +108,8 @@ export async function handler(chatUpdate) {
         if (!("modoadmin" in chat)) chat.modoadmin = false
         if (!("antiLink" in chat)) chat.antiLink = true
         if (!("nsfw" in chat)) chat.nsfw = false
-        if (!("economy" in chat)) chat.economy = true
-        if (!("gacha" in chat)) chat.gacha = true
+        if (!("economy" in chat)) chat.economy = false
+        if (!("gacha" in chat)) chat.gacha = false
       } else global.db.data.chats[m.chat] = {
         isBanned: false,
         welcome: true,
@@ -120,8 +120,8 @@ export async function handler(chatUpdate) {
         modoadmin: false,
         antiLink: true,
         nsfw: false,
-        economy: true,
-        gacha: true
+        economy: false,
+        gacha: false
       }
       var settings = global.db.data.settings[this.user.jid]
       if (typeof settings !== "object") global.db.data.settings[this.user.jid] = {}
