@@ -71,9 +71,9 @@ const handler = async (m, { conn, text, usedPrefix }) => {
   }
 };
 
-handler.help = ['tiktok', 'tt'];
+handler.help = ['tiktoks'];
 handler.tags = ['buscadores'];
-handler.command = ['tiktok', 'tt', 'tiktoks', 'tiktoksearch'];
+handler.command = ['tiktoks', 'tiktoksearch'];
 handler.group = true;
 
 export default handler;
