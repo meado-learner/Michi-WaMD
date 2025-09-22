@@ -50,7 +50,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
 
       console.log('[INFO] Enviando audio...');
-      await conn.sendMessage(m.chat, { audio: { url: audioUrl }, fileName: `${title}.mp3`, mimetype: 'audio/mpeg', ptt: true }, { quoted: m });
+      await conn.sendMessage(m.chat, { audio: { url: audioUrl }, fileName: `${title}.mp3`, mimetype: 'audio/mpeg', ptt: false }, { quoted: m });
 
       await m.react('✔️');
       console.log('[SUCCESS] Audio enviado correctamente');
