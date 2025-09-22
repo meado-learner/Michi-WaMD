@@ -73,7 +73,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
 
       console.log('[INFO] Enviando video...');
-      await conn.sendMessage(m.chat, { video: video.data, fileName: `${title}.mp4`, mimetype: 'video/mp4', caption: '> » Video descargado correctamente.' }, { quoted: m });
+      await conn.sendMessage(m.chat, { video: video.data, fileName: `${title}.mp4`, mimetype: 'video/mp4', ptv: true, caption: '> » Video descargado correctamente.' }, { quoted: m });
 
       await m.react('✔️');
       console.log('[SUCCESS] Video enviado correctamente');
