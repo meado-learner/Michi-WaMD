@@ -17,6 +17,7 @@
 ---
 
 「✦」Instalación rápida
+
 ⟩ Este bot no tendra compatibilidad con termux ni cloudshell, por lo tanto pronto tendra su web donde podran conectarse.
 
 ---
@@ -31,4 +32,5 @@
 「✦」Créditos
 
 > ✐ Creado por [meado-learner](https://github.com/meado-learner)
+
 
