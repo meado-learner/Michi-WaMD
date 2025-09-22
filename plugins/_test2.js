@@ -116,11 +116,9 @@ const handler = async (m, { conn, args, usedPrefix, command }) => {
     await m.react("✅")
 
   } catch (e) {
-    m.reply(`✗ Error: ${e.message}`)
+    m.reply(` Error: ${e.message}`)
   }
 }
 
 handler.command = ["ytio", "ytdownio", "ytio2"]
-
-
 export default handler
