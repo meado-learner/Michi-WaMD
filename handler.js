@@ -14,6 +14,27 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(function (
     resolve()
 }, ms))
 
+let subBotConfig = {}
+const loadSubBotConfig = (senderNumber) => {
+    const configPath = path.join('./Sessions/SubBot', senderNumber, 'config.json')
+    if (fs.existsSync(configPath)) {
+        subBotConfig[senderNumber] = JSON.parse(fs.readFileSync(configPath))
+    } else {
+        delete subBotConfig[senderNumber]
+    }
+}
+
+const saveDatabase = () => {
+    if (global.db.data) {
+        fs.writeFileSync(global.db.filepath, JSON.stringify(global.db.data, null, 2))
+    }
+}
+setInterval(saveDatabase, 60 * 1000)
+
+const ROWNERS = new Set(global.owner.map(([number]) => number.replace(/[^0-9]/g, "") + "@s.whatsapp.net"))
+const MODS = new Set(global.mods.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net"))
+const PREMS = new Set(global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net"))
+
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
     this.uptime = this.uptime || Date.now()
@@ -22,32 +43,22 @@ export async function handler(chatUpdate) {
     let m = chatUpdate.messages[chatUpdate.messages.length - 1]
     if (!m) return
     if (global.db.data == null) await global.loadDatabase()
+
     try {
         m = smsg(this, m) || m
         if (!m) return
 
-        // --- Lógica del Prefijo del Subbot ---
+        const senderNumber = this.user.jid.split('@')[0]
+        loadSubBotConfig(senderNumber)
         let prefixRegex = global.prefix
-        try {
-            const senderNumber = this.user.jid.split('@')[0]
-            const botPath = path.join('./Sessions/SubBot', senderNumber)
-            const configPath = path.join(botPath, 'config.json')
-
-            if (fs.existsSync(configPath)) {
-                const config = JSON.parse(fs.readFileSync(configPath))
-                if (config.prefix) {
-                    if (config.prefix === 'multi') {
-                        prefixRegex = new RegExp('^[#$@*&?,;:+×!_\\-¿.]')
-                    } else {
-                        let safe = [...config.prefix].map(c =>
-                            c.replace(/([.*+?^${}()|\[\]\\])/g, '\\$1')
-                        )
-                        prefixRegex = new RegExp('^(' + safe.join('|') + ')')
-                    }
-                }
+        if (subBotConfig[senderNumber] && subBotConfig[senderNumber].prefix) {
+            const configPrefix = subBotConfig[senderNumber].prefix
+            if (configPrefix === 'multi') {
+                prefixRegex = new RegExp('^[#$@*&?,;:+×!_\\-¿.]')
+            } else {
+                let safe = [...configPrefix].map(c => c.replace(/([.*+?^${}()|\[\]\\])/g, '\\$1'))
+                prefixRegex = new RegExp('^(' + safe.join('|') + ')')
             }
-        } catch (e) {
-            console.error('🍁 Error cargando prefijo del subbot:', e)
         }
 
         m.exp = 0
@@ -55,8 +66,7 @@ export async function handler(chatUpdate) {
 
         try {
             let user = global.db.data.users[m.sender]
-            if (typeof user !== "object")
-                global.db.data.users[m.sender] = {}
+            if (typeof user !== "object") global.db.data.users[m.sender] = {}
             if (user) {
                 if (!("name" in user)) user.name = m.name
                 if (!isNumber(user.exp)) user.exp = 0
@@ -99,8 +109,7 @@ export async function handler(chatUpdate) {
                 warn: 0
             }
             let chat = global.db.data.chats[m.chat]
-            if (typeof chat !== 'object')
-                global.db.data.chats[m.chat] = {}
+            if (typeof chat !== 'object') global.db.data.chats[m.chat] = {}
             if (chat) {
                 if (!("isBanned" in chat)) chat.isBanned = false
                 if (!("welcome" in chat)) chat.welcome = true
@@ -144,6 +153,7 @@ export async function handler(chatUpdate) {
         } catch (e) {
             console.error(e)
         }
+
         if (typeof m.text !== "string") m.text = ""
         const user = global.db.data.users[m.sender]
         try {
@@ -157,16 +167,16 @@ export async function handler(chatUpdate) {
         const conn = m.conn || global.conn
         const setting = global.db.data.settings[conn?.user?.jid]
 
-        const isROwner = [...global.owner.map(([number]) => number)].map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
+        const isROwner = ROWNERS.has(m.sender)
         const isOwner = isROwner || m.fromMe
-        // --- LÍNEA CORREGIDA ---
-        const isMods = isROwner || global.mods.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender)
-        const isPrems = isROwner || global.prems.map(v => v.replace(/[^0-9]/g, "") + "@s.whatsapp.net").includes(m.sender) || user.premium == true
+        const isMods = isROwner || MODS.has(m.sender)
+        const isPrems = isROwner || PREMS.has(m.sender) || user.premium == true
 
         if (opts["nyimak"]) return
         if (!m.fromMe && !isMods && setting["self"]) return
         if (!m.fromMe && !isMods && setting["gponly"] && !m.chat.endsWith("g.us") && !/code|p|ping|qr|estado|status|infobot|botinfo|report|reportar|invite|join|logout|suggest|help|menu/gim.test(m.text)) return
         if (opts["swonly"] && m.chat !== "status@broadcast") return
+
         if (opts["queque"] && m.text && !(isMods || isPrems)) {
             const queque = this.msgqueque,
                 time = 1000 * 5
@@ -191,110 +201,56 @@ export async function handler(chatUpdate) {
         const isBotAdmin = botGroup?.admin || false
 
         const ___dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), "./plugins")
+
+        const pluginMap = new Map()
         for (const name in global.plugins) {
             const plugin = global.plugins[name]
-            if (!plugin) continue
-            if (plugin.disabled) continue
-            const __filename = join(___dirname, name)
-            if (typeof plugin.all === "function") {
-                try {
-                    await plugin.all.call(this, m, {
-                        chatUpdate,
-                        __dirname: ___dirname,
-                        __filename,
-                        user,
-                        chat,
-                        setting
-                    })
-                } catch (err) {
-                    console.error(err)
+            if (plugin.command) {
+                if (Array.isArray(plugin.command)) {
+                    for (const cmd of plugin.command) pluginMap.set(cmd.toString(), plugin)
+                } else {
+                    pluginMap.set(plugin.command.toString(), plugin)
                 }
             }
-            if (!opts["restrict"])
-                if (plugin.tags && plugin.tags.includes("admin")) {
-                    continue
-                }
-            const strRegex = (str) => str.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
-            
-            const pluginPrefix = plugin.customPrefix || prefixRegex || conn.prefix || global.prefix
+        }
+        
+        const strRegex = (str) => str.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&")
+        let usedPrefix = null
+        let command = null
+        const prefixes = Array.isArray(prefixRegex) ? prefixRegex : [prefixRegex]
 
-            const match = (pluginPrefix instanceof RegExp ?
-                [
-                    [pluginPrefix.exec(m.text), pluginPrefix]
-                ] :
-                Array.isArray(pluginPrefix) ?
-                pluginPrefix.map(prefix => {
-                    const regex = prefix instanceof RegExp ?
-                        prefix : new RegExp(strRegex(prefix))
-                    return [regex.exec(m.text), regex]
-                }) : typeof pluginPrefix === "string" ?
-                [
-                    [new RegExp(strRegex(pluginPrefix)).exec(m.text), new RegExp(strRegex(pluginPrefix))]
-                ] :
-                [
-                    [
-                        [], new RegExp
-                    ]
-                ]).find(prefix => prefix[1])
-            if (typeof plugin.before === "function") {
-                if (await plugin.before.call(this, m, {
-                        match,
-                        conn: this,
-                        participants,
-                        groupMetadata,
-                        userGroup,
-                        botGroup,
-                        isROwner,
-                        isOwner,
-                        isMods,
-                        isRAdmin,
-                        isAdmin,
-                        isBotAdmin,
-                        isPrems,
-                        chatUpdate,
-                        __dirname: ___dirname,
-                        __filename,
-                        user,
-                        chat,
-                        setting
-                    })) {
-                    continue
-                }
+        for (const prefix of prefixes) {
+            const regex = prefix instanceof RegExp ? prefix : new RegExp(strRegex(prefix))
+            const match = regex.exec(m.text)
+            if (match && match[0]) {
+                usedPrefix = match[0]
+                const noPrefix = m.text.replace(usedPrefix, "").trim()
+                const [cmd, ...args] = noPrefix.split(" ").filter(v => v)
+                command = (cmd || "").toLowerCase()
+                break
             }
-            if (typeof plugin !== "function") {
-                continue
-            }
-            if ((usedPrefix = (match[0] || "")[0])) {
-                const noPrefix = m.text.replace(usedPrefix, "")
-                let [command, ...args] = noPrefix.trim().split(" ").filter(v => v)
-                args = args || []
-                let _args = noPrefix.trim().split(" ").slice(1)
-                let text = _args.join(" ")
-                command = (command || "").toLowerCase()
-                const fail = plugin.fail || global.dfail
-                const isAccept = plugin.command instanceof RegExp ?
-                    plugin.command.test(command) :
-                    Array.isArray(plugin.command) ?
-                    plugin.command.some(cmd => cmd instanceof RegExp ?
-                        cmd.test(command) : cmd === command) :
-                    typeof plugin.command === "string" ?
-                    plugin.command === command : false
-                global.comando = command
+        }
+
+        if (usedPrefix) {
+            const noPrefix = m.text.replace(usedPrefix, "")
+            let _args = noPrefix.trim().split(" ").slice(1)
+            let text = _args.join(" ")
+            const plugin = pluginMap.get(command)
+            
+            if (plugin) {
+                if (plugin.disabled) return
+                if (!opts["restrict"]) if (plugin.tags && plugin.tags.includes("admin")) return
 
                 if ((m.id.startsWith("NJX-") || (m.id.startsWith("BAE5") && m.id.length === 16) || (m.id.startsWith("B24E") && m.id.length === 20))) return
 
-                // Primary creator: Alex, Edited by Ado 🦖
                 if (global.db.data.chats[m.chat].primaryBot && global.db.data.chats[m.chat].primaryBot !== this.user.jid) {
                     const primaryBotConn = global.conns.find(conn =>
                         conn.user.jid === global.db.data.chats[m.chat].primaryBot &&
                         conn.ws.socket &&
                         conn.ws.socket.readyState !== ws.CLOSED
                     )
-                    const participants = m.isGroup ?
-                        (await this.groupMetadata(m.chat).catch(() => ({ participants: [] }))).participants :
-                        []
+                    const participants = m.isGroup ? (await this.groupMetadata(m.chat).catch(() => ({ participants: [] }))).participants : []
                     const primaryBotInGroup = participants.some(p => p.jid === global.db.data.chats[m.chat].primaryBot)
-
 
                     if (!(m.text && m.text.startsWith((usedPrefix || '.') + 'delprimary'))) {
                         if (primaryBotConn && primaryBotInGroup || global.db.data.chats[m.chat].primaryBot === global.conn.user.jid) {
@@ -305,12 +261,13 @@ export async function handler(chatUpdate) {
                     }
                 }
 
-                if (!isAccept) continue
-                m.plugin = name
+                m.plugin = plugin.name || command
+                global.comando = command
+
                 if (chat) {
                     const botId = this.user.jid
                     const primaryBotId = chat.primaryBot
-                    if (name !== "group-banchat.js" && chat?.isBanned && !isMods) {
+                    if (plugin.name !== "group-banchat.js" && chat?.isBanned && !isMods) {
                         if (!primaryBotId || primaryBotId === botId) {
                             const aviso = `ꕥ El bot *${setting.botname}* está desactivado en este grupo\n\n> ✦ Un *administrador* puede activarlo con el comando:\n> » *${usedPrefix}bot on*`
                             await m.reply(aviso)
@@ -325,51 +282,49 @@ export async function handler(chatUpdate) {
                         }
                     }
                 }
+
                 const adminMode = chat.modoadmin || false
-                const wa = plugin.botAdmin || plugin.admin || plugin.group || plugin || noPrefix || pluginPrefix || m.text.slice(0, 1) === pluginPrefix || plugin.command
+                const wa = plugin.botAdmin || plugin.admin || plugin.group || plugin || noPrefix || prefixRegex || m.text.slice(0, 1) === prefixRegex || plugin.command
+
                 if (adminMode && !isOwner && m.isGroup && !isAdmin && wa) return
                 if (plugin.rowner && plugin.owner && !(isROwner || isOwner)) {
                     fail("owner", m, this)
-                    continue
+                    return
                 }
                 if (plugin.rowner && !isROwner) {
                     fail("rowner", m, this)
-                    continue
+                    return
                 }
                 if (plugin.owner && !isOwner) {
                     fail("owner", m, this)
-                    continue
+                    return
                 }
                 if (plugin.mods && !isMods) {
                     fail("mods", m, this)
-                    continue
+                    return
                 }
                 if (plugin.premium && !isPrems) {
                     fail("premium", m, this)
-                    continue
+                    return
                 }
                 if (plugin.group && !m.isGroup) {
                     fail("group", m, this)
-                    continue
+                    return
                 } else if (plugin.botAdmin && !isBotAdmin) {
                     fail("botAdmin", m, this)
-                    continue
+                    return
                 } else if (plugin.admin && !isAdmin) {
                     fail("admin", m, this)
-                    continue
+                    return
                 }
                 if (plugin.private && m.isGroup) {
                     fail("private", m, this)
-                    continue
+                    return
                 }
                 m.isCommand = true
                 m.exp += plugin.exp ? parseInt(plugin.exp) : 10
                 let extra = {
-                    match,
                     usedPrefix,
-                    noPrefix,
-                    _args,
-                    args,
                     command,
                     text,
                     conn: this,
@@ -404,7 +359,9 @@ export async function handler(chatUpdate) {
                             console.error(err)
                         }
                     }
-                    if (isAccept) { global.db.data.users[m.sender].commands = (global.db.data.users[m.sender].commands || 0) + 1 }
+                    if (plugin) {
+                        global.db.data.users[m.sender].commands = (global.db.data.users[m.sender].commands || 0) + 1
+                    }
                 }
             }
         }
@@ -413,8 +370,7 @@ export async function handler(chatUpdate) {
     } finally {
         if (opts["queque"] && m.text) {
             const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id)
-            if (quequeIndex !== -1)
-                this.msgqueque.splice(quequeIndex, 1)
+            if (quequeIndex !== -1) this.msgqueque.splice(quequeIndex, 1)
         }
         let user, stats = global.db.data.stats
         if (m) {
