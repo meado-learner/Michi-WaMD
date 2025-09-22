@@ -22,6 +22,10 @@ export async function handler(chatUpdate) {
         this.pushMessage(chatUpdate.messages).catch(() => {})
         let m = chatUpdate.messages[chatUpdate.messages.length - 1]
         if (!m) return
+        
+        // Validar que tenga un ID antes de continuar
+        if (!m.key?.id) return
+
         if (global.db.data == null) await global.loadDatabase()
         
         m = smsg(this, m) || m
@@ -273,25 +277,30 @@ export async function handler(chatUpdate) {
                 
                 global.comando = command
 
-                if ((m.id.startsWith("NJX-") || (m.id.startsWith("BAE5") && m.id.length === 16) || (m.id.startsWith("B24E") && m.id.length === 20))) return
+                // Validar que m.id exista antes de usarlo
+                if (m.id && (
+                    m.id.startsWith("NJX-") || 
+                    (m.id.startsWith("BAE5") && m.id.length === 16) || 
+                    (m.id.startsWith("B24E") && m.id.length === 20)
+                )) return
 
                 // Primary creator: Alex, Edited by Ado 🦖
-                if (global.db.data.chats[m.chat].primaryBot && global.db.data.chats[m.chat].primaryBot !== this.user.jid) {
+                if (chat && chat.primaryBot && chat.primaryBot !== this.user.jid) {
                     const primaryBotConn = global.conns.find(conn =>
-                        conn.user.jid === global.db.data.chats[m.chat].primaryBot &&
+                        conn.user.jid === chat.primaryBot &&
                         conn.ws.socket &&
                         conn.ws.socket.readyState !== ws.CLOSED
                     )
                     const participants = m.isGroup ?
                         (await this.groupMetadata(m.chat).catch(() => ({ participants: [] }))).participants :
                         []
-                    const primaryBotInGroup = participants.some(p => p.jid === global.db.data.chats[m.chat].primaryBot)
+                    const primaryBotInGroup = participants.some(p => p.jid === chat.primaryBot)
 
                     if (!(m.text && m.text.startsWith((usedPrefix || '.') + 'delprimary'))) {
-                        if (primaryBotConn && primaryBotInGroup || global.db.data.chats[m.chat].primaryBot === global.conn.user.jid) {
+                        if (primaryBotConn && primaryBotInGroup || chat.primaryBot === global.conn.user.jid) {
                             return
                         } else {
-                            global.db.data.chats[m.chat].primaryBot = null
+                            chat.primaryBot = null
                         }
                     }
                 }
@@ -402,17 +411,17 @@ export async function handler(chatUpdate) {
     } catch (err) {
         console.error(err)
     } finally {
-        if (opts["queque"] && m.text) {
+        if (opts["queque"] && m && m.text) {
             const quequeIndex = this.msgqueque.indexOf(m.id || m.key.id)
             if (quequeIndex !== -1)
                 this.msgqueque.splice(quequeIndex, 1)
         }
         let user
         if (m && m.sender && (user = global.db.data.users[m.sender])) {
-            user.exp += m.exp
+            user.exp += m.exp || 0
         }
         try {
-            if (!opts["noprint"]) await (await import("./lib/print.js")).default(m, this)
+            if (!opts["noprint"] && m) await (await import("./lib/print.js")).default(m, this)
         } catch {}
     }
 }
