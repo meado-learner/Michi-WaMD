@@ -38,15 +38,18 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
       await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m })
 
-      const tempFile = path.join("./temp", `${Date.now()}.mp3`)
-      const outputFile = path.join("./temp", `${Date.now()}_bass.ogg`)
+      const tmpDir = path.join("./tmp")
+      if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir)
+
+      const tempFile = path.join(tmpDir, `${Date.now()}.mp3`)
+      const outputFile = path.join(tmpDir, `${Date.now()}_bass.ogg`)
 
       const res = await fetch(audioUrl)
       const buffer = await res.arrayBuffer()
       fs.writeFileSync(tempFile, Buffer.from(buffer))
 
       await new Promise((resolve, reject) => {
-        exec(`ffmpeg -i "${tempFile}" -af "bass=g=5" -c:a libopus -b:a 128k "${outputFile}"`, (err) => {
+        exec(`ffmpeg -i "${tempFile}" -af "bass=g=10" -c:a libopus -b:a 128k "${outputFile}"`, (err) => {
           if (err) reject(err)
           else resolve()
         })
