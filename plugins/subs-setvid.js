@@ -64,5 +64,5 @@ const handler = async (m, { conn, command }) => {
   }
 }
 
-handler.help = ["setvid"]
+handler.command = ["setvid"]
 export default handler 
