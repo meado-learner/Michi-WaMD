@@ -16,19 +16,20 @@ const delay = ms => isNumber(ms) && new Promise(resolve => setTimeout(() => {
 export async function handler(chatUpdate) {
     this.msgqueque = this.msgqueque || []
     this.uptime = this.uptime || Date.now()
-    if (!chatUpdate) return
+    if (!chatUpdate || !chatUpdate.messages || chatUpdate.messages.length === 0) return
     
     try {
         this.pushMessage(chatUpdate.messages).catch(() => {})
         let m = chatUpdate.messages[chatUpdate.messages.length - 1]
+        
         if (!m) return
         
-        // Validar que tenga un ID antes de continuar
         if (!m.key?.id) return
 
         if (global.db.data == null) await global.loadDatabase()
         
         m = smsg(this, m) || m
+        
         if (!m) return
 
         // --- Lógica del Prefijo del Subbot ---
@@ -395,7 +396,7 @@ export async function handler(chatUpdate) {
                     await plugin.call(this, m, extra)
                 } catch (err) {
                     console.error(err)
-                    await this.sendMessage(m.chat, { text: '⚠️ Error al ejecutar el comando.' }, { quoted: m })
+                    if (m && m.chat) await this.sendMessage(m.chat, { text: '⚠️ Error al ejecutar el comando.' }, { quoted: m })
                 } finally {
                     if (typeof plugin.after === "function") {
                         try {
@@ -427,6 +428,8 @@ export async function handler(chatUpdate) {
 }
 
 global.dfail = (type, m, conn) => {
+    if (!m || !m.chat || !conn || !conn.sendMessage) return;
+
     const msg = {
         rowner: `> 〄 El comando *${global.comando}* solo puede ser usado por los creadores del bot.`,
         owner: `> 〄 El comando *${global.comando}* solo puede ser usado por los desarrolladores del bot.`,
@@ -438,6 +441,7 @@ global.dfail = (type, m, conn) => {
         botAdmin: `> 〄 Para ejecutar el comando *${global.comando}* debo ser administrador del grupo.`,
         restrict: `> 〄 Esta caracteristica está desactivada.`
     }[type]
+
     if (msg) return conn.sendMessage(m.chat, { text: msg }, { quoted: m }).then(_ => m.react('✖️'))
 }
 
