@@ -33,7 +33,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     await conn.sendMessage(m.chat, {
       video: { url: api2.data.url },
       mimetype: 'video/mp4',
-      fileName: `${results ? results.title : 'video'}.mp4`
+      fileName: `${results ? results.title : 'video'}.mp4`,
       caption: '> 🤍 Aqui tienes'
     }, { quoted: m });
 
