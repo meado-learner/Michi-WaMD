@@ -58,7 +58,7 @@ let handler = async (m, { conn, usedPrefix }) => {
         {
           video: { url: videoUrl },
           caption: txt,
-          gifPlayback: true
+          gifPlayback: false
         },
         { quoted: m }
       )
