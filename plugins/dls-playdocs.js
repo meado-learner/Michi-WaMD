@@ -88,7 +88,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
 handler.command = handler.help = ['mp3doc', 'ytmp3doc', 'mp4doc', 'ytmp4doc'];
 handler.tags = ['descargas'];
-handler.group = true;
+handler.coin = 31
 
 export default handler;
 
