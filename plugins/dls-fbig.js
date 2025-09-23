@@ -50,6 +50,6 @@ const handler = async (m, { args, conn, usedPrefix, command }) => {
 handler.command = ['instagram', 'ig', 'facebook', 'fb'];
 handler.tags = ['descargas'];
 handler.help = ['instagram', 'ig', 'facebook', 'fb'];
-handler.group = true;
+handler.coin = 22
 
 export default handler;
