@@ -45,8 +45,8 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
   }
 };
 
-handler.command = ['play'];
-handler.help = ['play'];
+handler.command = ['play', 'ytmp3'];
+handler.help = ['play', 'ytmp3'];
 handler.tags = ['descargas'];
 handler.coin = 5
 
