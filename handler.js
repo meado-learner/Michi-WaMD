@@ -25,6 +25,7 @@ export async function handler(chatUpdate) {
     if (!m) return;
 
     let prefixRegex = global.prefix;
+    let usedPrefix = global.prefix || ""; // Valor predeterminado para usedPrefix
     const senderNumber = this.user.jid.split('@')[0];
     if (!prefixCache.has(senderNumber)) {
         const botPath = path.join('./Sessions/SubBot', senderNumber);
@@ -181,7 +182,8 @@ export async function handler(chatUpdate) {
             })) continue;
         }
 
-        if (!(usedPrefix = (match[0] || "")[0])) continue;
+        usedPrefix = (match[0] || "")[0]; // Asignación de usedPrefix dentro del bucle
+        if (!usedPrefix) continue;
 
         const noPrefix = m.text.replace(usedPrefix, "");
         let [command, ...args] = noPrefix.trim().split(" ").filter(v => v);
