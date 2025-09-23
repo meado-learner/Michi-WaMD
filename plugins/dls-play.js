@@ -48,5 +48,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 handler.command = ['play'];
 handler.help = ['play'];
 handler.tags = ['descargas'];
+handler.coin = 5
 
 export default handler;
