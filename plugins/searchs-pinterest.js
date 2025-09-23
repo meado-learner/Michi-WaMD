@@ -28,6 +28,7 @@ handler.help = ['pinterest']
 handler.command = ['pinterest', 'pin']
 handler.tags = ["buscadores"]
 handler.group = true
+handler.coin = 18
 
 export default handler
 
