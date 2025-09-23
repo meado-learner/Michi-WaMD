@@ -248,11 +248,11 @@ export async function handler(chatUpdate) {
 
         if (plugin.coin && isNumber(plugin.coin) && plugin.coin > 0) {
             if (user.coin < plugin.coin) {
-                await this.reply(m.chat, `ꕥ No tienes suficientes ${global.currency} para usar este comando. Necesitas ${plugin.coin} ${global.currency}, pero tienes ${user.coin} ${global.currency}.`, m);
+                await this.reply(m.chat, `ꕥ No tienes suficientes *${global.currency}* para usar este comando. Necesitas ${plugin.coin} *${global.currency}*, pero tienes ${user.coin} *${global.currency}*.`, m);
                 continue;
             }
             user.coin -= plugin.coin;
-            await this.reply(m.chat, `ꕥ Se han cobrado ${plugin.coin} ${global.currency} por usar el comando *${usedPrefix}${command}*. Saldo actual: ${user.coin} ${global.currency}.`, m);
+            await this.reply(m.chat, `> ꕥ Se cobraran ${plugin.coin} *${global.currency}* por usar el comando *${usedPrefix}${command}*.\n> » *_Saldo actual: ${user.coin} ${global.currency}._*`, m);
         }
 
         m.isCommand = true;
