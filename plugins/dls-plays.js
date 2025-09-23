@@ -13,8 +13,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 > ✦ *Canal* » ${results.author.name}
 > ⴵ *Duración:* » ${results.duration}
 > ✰ *Vistas:* » ${results.views}
-> ✐ *Publicación* » ${results.publishedAt} 
-> ❒ *Tamaño:* » ${results.HumanReadable}
+> ✐ *Publicación* » ${results.publishedAt}
 > 🜸 *Link* » ${results.url}`;
 
     let img = results.image;
@@ -29,7 +28,8 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     await conn.sendMessage(m.chat, {
       audio: { url: api2.data.url },
       mimetype: 'audio/mpeg',
-      fileName: `${results.title}.mp3`
+      fileName: `${results.title}.mp3`,
+      ptt: true
     }, { quoted: m });
 
   } catch (e) {
@@ -39,5 +39,8 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 };
 
 handler.command = ['play'];
+handler.help = ['play']
+handler.tags = ['descargas']
+//handler.coin = 2
 
 export default handler;
