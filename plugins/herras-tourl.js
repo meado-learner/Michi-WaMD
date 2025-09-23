@@ -28,6 +28,7 @@ let handler = async (m, { conn }) => {
 handler.command = ['tourl'];
 handler.tags = ['herramientas'];
 handler.help = ['tourl']
+handler.coin = 12
 
 export default handler;
 
