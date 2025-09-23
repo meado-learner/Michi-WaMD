@@ -1,5 +1,13 @@
 import fetch from "node-fetch";
 import yts from "yt-search";
+import ffmpeg from "fluent-ffmpeg";
+import { createWriteStream, createReadStream } from "fs";
+import { join } from "path";
+import { tmpdir } from "os";
+import { promisify } from "util";
+import { pipeline } from "stream";
+
+const pipelineAsync = promisify(pipeline);
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text?.trim()) {
@@ -26,20 +34,19 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
 > ✐ Canal » *${canal}*
 > ⴵ Duración » *${duracion}*
-> ✰ Calidad: *${["play", "yta", "ytmp3", "playaudio"].includes(command) ? "128k" : "360p"}*
+> ✰ Calidad: *${["play", "yta", "ytmp3", "playaudio"].includes(command) ? "128k (saturated + bass)" : "360p"}*
 > 🜸 Link » ${url}
 > ⟡ Vistas » *${vistas}*`;
 
-    // Send thumbnail and info concurrently with media fetching
     const sendThumbnail = conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
 
     if (["play", "yta", "ytmp3", "playaudio"].includes(command)) {
-      const audioUrl = await getYtmp3(url);
-      if (!audioUrl) throw "⚠ No se pudo obtener el audio.";
+      const audioBuffer = await getYtmp3(url, title);
+      if (!audioBuffer) throw "⚠ No se pudo obtener el audio.";
 
       await Promise.all([
         sendThumbnail,
-        conn.sendMessage(m.chat, { audio: { url: audioUrl }, fileName: `${title}.mp3`, mimetype: "audio/mpeg", ptt: true }, { quoted: m }),
+        conn.sendMessage(m.chat, { audio: audioBuffer, fileName: `${title}.mp3`, mimetype: "audio/mpeg", ptt: true }, { quoted: m }),
       ]);
 
     } else if (["play2", "ytv", "ytmp4", "mp4"].includes(command)) {
@@ -65,11 +72,34 @@ handler.group = true;
 
 export default handler;
 
-async function getYtmp3(url) {
+async function getYtmp3(url, title) {
   try {
     const endpoint = `http://173.208.192.170/download/ytmp3?apikey=Adofreekey&url=${encodeURIComponent(url)}`;
     const res = await fetch(endpoint, { redirect: "follow" }).then((r) => r.json());
-    return res?.data?.url || null;
+    if (!res?.data?.url) return null;
+
+    const audioUrl = res.data.url;
+    const tempInputPath = join(tmpdir(), `${title.replace(/[^a-zA-Z0-9]/g, "_")}_input.mp3`);
+    const tempOutputPath = join(tmpdir(), `${title.replace(/[^a-zA-Z0-9]/g, "_")}_output.mp3`);
+
+    const response = await fetch(audioUrl);
+    if (!response.ok) return null;
+    await pipelineAsync(response.body, createWriteStream(tempInputPath));
+
+    await new Promise((resolve, reject) => {
+      ffmpeg(tempInputPath)
+        .audioFilters([
+          "acompressor=threshold=-21dB:ratio=9:attack=200:release=1000",
+          "bass=g=10:f=100:w=0.5",
+        ])
+        .outputOptions("-c:a mp3", "-b:a 128k")
+        .save(tempOutputPath)
+        .on("end", resolve)
+        .on("error", reject);
+    });
+
+    const audioBuffer = createReadStream(tempOutputPath);
+    return audioBuffer;
   } catch {
     return null;
   }
