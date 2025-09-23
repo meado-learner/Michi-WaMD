@@ -34,7 +34,7 @@ export async function handler(chatUpdate) {
                 const config = JSON.parse(fs.readFileSync(configPath));
                 if (config.prefix) {
                     prefixRegex = config.prefix === 'multi'
-                        ? /^[#$@*&?,;:+×!_\\-?.]/
+                        ? /^[#$@*&?,;:+×!_\-.]/
                         : new RegExp(`^(${[...config.prefix].map(c => c.replace(/([.*+?^${}()|\[\]\\])/g, '\\$1')).join('|')})`);
                     prefixCache.set(senderNumber, prefixRegex);
                 }
@@ -244,7 +244,6 @@ export async function handler(chatUpdate) {
             continue;
         }
 
-        // Nueva logica 🦖
         if (plugin.coin && isNumber(plugin.coin) && plugin.coin > 0) {
             if (user.coin < plugin.coin) {
                 await this.reply(m.chat, `ꕥ No tienes suficientes ${global.currency} para usar este comando. Necesitas ${plugin.coin} ${global.currency}, pero tienes ${user.coin} ${global.currency}.`, m);
