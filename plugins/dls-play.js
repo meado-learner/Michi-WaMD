@@ -36,7 +36,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
       audio: { url: api2.data.url },
       mimetype: 'audio/mpeg',
       fileName: `${results.title || 'audio'}.mp3`,
-      ptt: true
+      ptt: false
     }, { quoted: m });
 
   } catch (e) {
