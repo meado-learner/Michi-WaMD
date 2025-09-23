@@ -25,5 +25,6 @@ handler.help = ['ytsearch']
 handler.tags = ['buscadores']
 handler.command = ['ytbuscar', 'ytsearch', 'yts']
 handler.group = true
+handler.coin = 12
 
 export default handler
