@@ -443,6 +443,53 @@ const [ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find] = test;
 const s = global.support = {ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find};
 Object.freeze(global.support);
 }
+// Limpieza automática de audios innecesarios de subbots cada 3 minutos
+setInterval(async () => {
+  console.log(chalk.cyan('[ ✿ ] Iniciando limpieza automática de SubBots...'));
+  const baseDir = `./${jadi}/`;
+  try {
+    if (!existsSync(baseDir)) {
+      console.log(chalk.yellow(`[ ✿ ] No existe la carpeta ${jadi}.`));
+      return;
+    }
+
+    const subBots = readdirSync(baseDir);
+    let totalDeleted = 0;
+
+    for (const bot of subBots) {
+      const botPath = join(baseDir, bot);
+      const stat = statSync(botPath);
+      if (!stat.isDirectory()) continue;
+
+      const files = readdirSync(botPath);
+      for (const file of files) {
+        if (!['creds.json', 'config.json', 'config.js'].includes(file)) {
+          const filePath = join(botPath, file);
+          const fileStat = statSync(filePath);
+          try {
+            if (fileStat.isDirectory()) {
+              rmSync(filePath, { recursive: true, force: true });
+            } else {
+              unlinkSync(filePath);
+            }
+            totalDeleted++;
+          } catch (err) {
+            console.error(chalk.red(`Error eliminando ${bot}/${file}: ${err.message}`));
+          }
+        }
+      }
+    }
+
+    console.log(chalk.green(
+      totalDeleted
+        ? `[ ✿ ] Limpieza completa: ${totalDeleted} archivos eliminados`
+        : `[ ✿ ] No se eliminaron archivos, solo creds.json y config presentes`
+    ));
+
+  } catch (error) {
+    console.error(chalk.red(`Error en limpieza automática de subBots: ${error}`));
+  }
+}, 3 * 60 * 1000); // 3 minutos
 // Tmp
 setInterval(async () => {
 const tmpDir = join(__dirname, 'tmp')
