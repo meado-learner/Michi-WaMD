@@ -44,7 +44,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
       await conn.sendMessage(m.chat, { image: { url: thumbnail }, caption: info }, { quoted: m });
 
-      await conn.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), fileName: `${title}.mp3`, mimetype: 'audio/mpeg', ptt: false }, { quoted: m });
+      await conn.sendMessage(m.chat, { audio: fs.readFileSync(audioPath), fileName: `${title}.mp3`, mimetype: 'audio/mpeg', ptt: true }, { quoted: m });
       fs.unlinkSync(audioPath);
 
       await m.react('✔️');
