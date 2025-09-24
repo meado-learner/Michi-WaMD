@@ -1,56 +1,59 @@
 import fetch from "node-fetch"
 import yts from "yt-search"
 
-const download = async (videoId, format = "mp3") => {
-    const headers = {
-        "accept-encoding": "gzip, deflate, br, zstd",
-        "origin": "https://ht.flvto.online",
+const API_URL = "https://dl08.yt-dl.click/"
+
+const download = async (url, isAudio = true) => {
+    let body = {
+        url: url,
+        vQuality: isAudio ? "128kbps" : "360p",
+        isAudioOnly: isAudio,
+        filenamePattern: "pretty",
+        disableMetadata: false,
+        disableSubtitle: true
     }
-    const body = JSON.stringify({
-        "id": videoId,
-        "fileType": format
+
+    let res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+            "content-type": "application/json"
+        },
+        body: JSON.stringify(body)
     })
-    const response = await fetch(`https://ht.flvto.online/converter`, { headers, body, method: "post" })
-    if (!response.ok) throw Error(`${response.status} ${response.statusText}\n${await response.text()}`)
-    const json = await response.json()
-    return json
+
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}\n${await res.text()}`)
+    return res.json()
 }
 
 let handler = async (m, { conn, command, text }) => {
     if (!text) return m.reply(`✎ Ingresa un link o nombre de la canción/video\nEjemplo: *.${command} ozuna*`)
 
     try {
-        let format = command === "audio" ? "mp3" : "mp4"
-        let videoId
+        let isAudio = command === "audio"
+        let url = text
 
-      
-        if (/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(text)) {
-            let match = text.match(/(?:v=|\/)([0-9A-Za-z_-]{11})/)
-            videoId = match ? match[1] : null
-        } else {
         
+        if (!/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\//i.test(text)) {
             let search = await yts(text)
             if (!search || !search.videos.length) return m.reply("⚠ No encontré resultados")
-            videoId = search.videos[0].videoId
+            url = search.videos[0].url
         }
 
-        if (!videoId) return m.reply("⚠ No pude obtener el ID del video")
+        let result = await download(url, isAudio)
+        if (!result || !result.url) return m.reply("⚠ No se pudo generar el enlace de descarga")
 
-        let res = await download(videoId, format)
-        if (!res || !res.url) return m.reply("⚠ No se pudo generar el enlace de descarga")
-
-        if (format === "mp3") {
+        if (isAudio) {
             await conn.sendMessage(m.chat, {
-                audio: { url: res.url },
+                audio: { url: result.url },
                 mimetype: "audio/mpeg",
-                fileName: `${res.title || "audio"}.mp3`,
+                fileName: `${result.title || "audio"}.mp3`,
                 ptt: false
             }, { quoted: m })
         } else {
             await conn.sendMessage(m.chat, {
-                video: { url: res.url },
+                video: { url: result.url },
                 mimetype: "video/mp4",
-                fileName: `${res.title || "video"}.mp4`
+                fileName: `${result.title || "video"}.mp4`
             }, { quoted: m })
         }
 
