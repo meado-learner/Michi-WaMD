@@ -17,7 +17,10 @@ let handler = async (m, { text }) => {
 
     let res = await fetch(API_URL, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { 
+        "accept": "application/json",
+        "content-type": "application/json"
+      },
       body: JSON.stringify(body)
     })
 
