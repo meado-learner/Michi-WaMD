@@ -16,5 +16,6 @@ await m.react('✔️')
 handler.help = ['toimg']
 handler.tags = ['herramientas']
 handler.command = ['toimg', 'jpg', 'img'] 
+handler.coin = 14
 
 export default handler
