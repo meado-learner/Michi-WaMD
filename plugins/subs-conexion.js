@@ -104,7 +104,7 @@ printQRInTerminal: false,
 auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})) },
 msgRetry,
 msgRetryCache, 
-browser: ['Michi Socket', 'Firefox'],
+browser: ['Windows', 'Firefox'],
 version: version,
 generateHighQualityLinkPreview: true
 }
