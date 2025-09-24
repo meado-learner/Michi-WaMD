@@ -19,7 +19,7 @@ async function generarBienvenida({ conn, userId, groupMetadata, chat }) {
     .replace(/{grupo}/g, `*${groupMetadata.subject}*`)
     .replace(/{desc}/g, `${desc}`)
 
-  const caption = `ꕤ \`Bienvenida\` ꕤ\n\n✐ *Hola ${username}*\n⊹ Te damos la bienvenida a *${groupMetadata.subject}*\n⊹ ${mensaje}\n⊹ ${desc}\n✦ Ahora somos *${groupSize}* miembros\nꕥ Fecha » ${fecha}\n\n> \`Esperamos que disfrutes tu estadía 🤍\``
+  const caption = `ꕤ \`Bienvenida\` ꕤ\n\n✐ *Hola* ${username}\n⊹ Te damos la bienvenida a *${groupMetadata.subject}*\n⊹ ${mensaje}\n⊹ ${desc}\n✦ Ahora somos *${groupSize}* miembros\nꕥ Fecha » ${fecha}\n\n> \`Esperamos que disfrutes tu estadía 🤍\``
   return { pp, caption, mentions: [userId] }
 }
 
@@ -41,7 +41,7 @@ async function generarDespedida({ conn, userId, groupMetadata, chat }) {
     .replace(/{grupo}/g, `${groupMetadata.subject}`)
     .replace(/{desc}/g, `*${desc}*`)
 
-  const caption = `ꕤ \`Despedida\` ꕤ\n\n✐ *${username} ha salido del grupo*\n⊹ Grupo » *${groupMetadata.subject}*\n⊹ ${mensaje}\n⊹ ${desc}\n✦ Ahora somos *${groupSize}* miembros\nꕥ Fecha » ${fecha}\n\n> \`Te esperamos pronto 🤍\``
+  const caption = `ꕤ \`Despedida\` ꕤ\n\n✐ ${username} *ha salido del grupo*\n⊹ Grupo » *${groupMetadata.subject}*\n⊹ ${mensaje}\n⊹ ${desc}\n✦ Ahora somos *${groupSize}* miembros\nꕥ Fecha » ${fecha}\n\n> \`Te esperamos pronto 🤍\``
   return { pp, caption, mentions: [userId] }
 }
 
