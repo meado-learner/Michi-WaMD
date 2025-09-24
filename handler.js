@@ -85,7 +85,21 @@ export async function handler(chatUpdate) {
         economy: true,
         gacha: true
     });
-
+ 
+    if (chat.isBanned) {
+    
+    const textLower = m.text?.toLowerCase() || ''
+    if (
+        !textLower.startsWith('.unbanchat') &&
+        !textLower.startsWith('/unbanchat') &&
+        !textLower.startsWith('!unbanchat') &&
+        !textLower.startsWith('.desbanearbot') &&
+        !textLower.startsWith('/desbanearbot') &&
+        !textLower.startsWith('!desbanearbot')
+    ) {
+        return
+    }
+ }
     const settings = global.db.data.settings[this.user.jid] || (global.db.data.settings[this.user.jid] = {
         self: false,
         restrict: true,
@@ -93,7 +107,7 @@ export async function handler(chatUpdate) {
         antiPrivate: false,
         gponly: false
     });
-
+ 
     if (typeof m.text !== "string") m.text = "";
 
     const nuevoNombre = m.pushName || await this.getName(m.sender);
