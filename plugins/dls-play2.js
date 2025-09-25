@@ -14,7 +14,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
       results = api.data[0];
       url = results.url;
 
-      txt = `*「✦」 ${results.title}*
+      txt = `*❐ ${results.title}*
 
 > ✦ *Canal* » ${results.author.name}
 > ⴵ *Duración:* » ${results.duration}
@@ -34,7 +34,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
       video: { url: api2.data.url },
       mimetype: 'video/mp4',
       fileName: `${results ? results.title : 'video'}.mp4`,
-      caption: '> 🤍 Aqui tienes'
+      caption: '> ❑ Aqui tienes'
     }, { quoted: m });
 
   } catch (e) {
@@ -46,6 +46,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 handler.command = ['play2', 'ytmp4'];
 handler.help = ['play2', 'ytmp4'];
 handler.tags = ['descargas'];
-handler.coin = 25;
+//handler.coin = 25;
 
 export default handler;
