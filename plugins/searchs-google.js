@@ -36,6 +36,6 @@ var handler = async (m, { conn, text, args, usedPrefix }) => {
 handler.help = ['search']
 handler.command = ['search', 'google']
 handler.group = true
-handler.coin = 15
+//handler.coin = 15
 
 export default handler
