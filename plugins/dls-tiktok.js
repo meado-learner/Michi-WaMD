@@ -39,6 +39,5 @@ handler.tags = ['descargas']
 handler.help = ['tiktok']
 handler.command = ['tiktok', 'tt']
 handler.group = true
-handler.coin = 20
 
 export default handler
