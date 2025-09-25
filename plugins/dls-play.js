@@ -14,7 +14,7 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
       results = api.data[0];
     }
 
-    let txt = `「✦」 *${results.title || 'Resultado Encontrado'}*
+    let txt = `❐ *${results.title || 'Resultado Encontrado'}*
 
 > ✦ *Canal* » ${results.author?.name || '-'}
 > ⴵ *Duración:* » ${results.duration || '-'}
@@ -48,6 +48,6 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
 handler.command = ['play', 'ytmp3'];
 handler.help = ['play', 'ytmp3'];
 handler.tags = ['descargas'];
-handler.coin = 25
+//handler.coin = 25
 
 export default handler;
