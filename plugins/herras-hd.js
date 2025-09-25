@@ -26,7 +26,7 @@ await conn.reply(m.chat, `⚠︎ No se pudo mejorar la imagen\n> Usa ${usedPrefi
 handler.help = ['hd']
 handler.tags = ['herramientas']
 handler.command = ['hd', 'remini', 'enhance']
-handler.coin = 35
+//handler.coin = 35
 
 export default handler
 
