@@ -37,6 +37,6 @@ let handler = async (m, { conn, usedPrefix, command }) => {
 handler.help = ['whatmusic'];
 handler.tags = ['herramientas'];
 handler.command = ['shazam', 'whatmusic'];
-handler.coin = 24;
+//handler.coin = 24;
 
 export default handler;
