@@ -1,7 +1,6 @@
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '1'
 import './settings.js'
 import './plugins/_fakes.js'
-import cfonts from 'cfonts'
 import { createRequire } from 'module'
 import { fileURLToPath, pathToFileURL } from 'url'
 import { platform } from 'process'
@@ -35,18 +34,9 @@ const { CONNECTING } = ws
 const { chain } = lodash
 const PORT = process.env.PORT || process.env.SERVER_PORT || 3000
 
-let { say } = cfonts
 console.log(chalk.magentaBright('\n🌾 Iniciando...'))
-say('MichiWA', {
-font: 'simple',
-align: 'left',
-gradient: ['yellow', 'white']
-})
-say('Made with Ado', {
-font: 'console',
-align: 'center',
-colors: ['red', 'magenta', 'yellow']
-})
+console.log(chalk.yellow('MichiWA'))
+console.log(chalk.red('Made with Ado'))
 protoType()
 serialize()
 
@@ -418,7 +408,115 @@ global.plugins = Object.fromEntries(Object.entries(global.plugins).sort(([a], [b
 }}}}
 Object.freeze(global.reload)
 watch(pluginFolder, global.reload)
+import startServer from './server.js';
+import os from 'os';
+import events from './lib/events.js';
+
 await global.reloadHandler()
+
+// Start the web server
+const port = 12009;
+startServer(port);
+
+// Log the local IP addresses
+const networkInterfaces = os.networkInterfaces();
+console.log(chalk.bold.yellowBright('\nꕥ Web Interface running on:'));
+Object.keys(networkInterfaces).forEach(ifaceName => {
+    networkInterfaces[ifaceName].forEach(iface => {
+        if ('IPv4' === iface.family && iface.internal === false) {
+            console.log(chalk.bold.cyanBright(`  > http://${iface.address}:${port}`));
+        }
+    });
+});
+
+// Listener for pairing code requests from the web UI
+events.on('get-code-request', async ({ phoneNumber, requestId }) => {
+    const pathMichiJadiBot = path.join(global.rutaJadiBot, phoneNumber);
+    if (!fs.existsSync(pathMichiJadiBot)) {
+        fs.mkdirSync(pathMichiJadiBot, { recursive: true });
+    }
+
+    try {
+        const { state, saveCreds } = await useMultiFileAuthState(pathMichiJadiBot);
+        const { version } = await fetchLatestBaileysVersion();
+        const msgRetryCache = new NodeCache();
+
+        const connectionOptions = {
+            logger: pino({ level: "silent" }),
+            printQRInTerminal: false,
+            auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'silent' })) },
+            msgRetryCounterCache: msgRetryCache,
+            browser: ['MichiWaMD', 'Web', '1.0'],
+            version,
+            generateHighQualityLinkPreview: true
+        };
+
+        let sock = makeWASocket(connectionOptions);
+
+        const cleanup = () => {
+            try {
+                sock.ws.close();
+                sock.ev.removeAllListeners();
+            } catch {}
+        };
+
+        const timeout = setTimeout(() => {
+            events.emit(`get-code-response:${requestId}`, { error: 'Request timed out after 45 seconds.' });
+            cleanup();
+        }, 45000);
+
+        sock.ev.on('connection.update', async (update) => {
+            const { connection, qr } = update;
+            if (qr) {
+                 try {
+                    const code = await sock.requestPairingCode(phoneNumber);
+                    events.emit(`get-code-response:${requestId}`, { code: code.match(/.{1,4}/g)?.join("-") || code });
+                    clearTimeout(timeout);
+                    cleanup();
+                 } catch (e) {
+                    events.emit(`get-code-response:${requestId}`, { error: 'Failed to request pairing code.' });
+                    clearTimeout(timeout);
+                    cleanup();
+                 }
+            }
+            if (connection === 'close') {
+                clearTimeout(timeout);
+                cleanup();
+            }
+        });
+
+        sock.ev.on('creds.update', saveCreds);
+
+    } catch (e) {
+        console.error('Error in get-code-request handler:', e);
+        events.emit(`get-code-response:${requestId}`, { error: 'An internal server error occurred.' });
+    }
+});
+
+import setPrefixHandler from './plugins/subs-setprefix.js';
+
+// Listener for set prefix requests
+events.on('set-prefix-request', async ({ phoneNumber, prefix, requestId }) => {
+    let replyMessage = '';
+    const fakeM = {
+        sender: `${phoneNumber}@s.whatsapp.net`,
+        reply: (text) => {
+            replyMessage = text;
+            return Promise.resolve(); // Mock the async nature of reply
+        }
+    };
+
+    try {
+        // Call the actual plugin handler
+        await setPrefixHandler(fakeM, { text: prefix });
+        events.emit(`set-prefix-response:${requestId}`, { message: replyMessage });
+    } catch (e) {
+        console.error('Error in set-prefix-request handler:', e);
+        events.emit(`set-prefix-response:${requestId}`, { error: 'An internal error occurred while setting the prefix.' });
+    }
+});
+
+
 async function _quickTest() {
 const test = await Promise.all([
 spawn('ffmpeg'),

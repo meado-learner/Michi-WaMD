@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Michi WaMD Control Panel</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Michi WaMD</h1>
+            <p>Your WhatsApp Bot Control Panel</p>
+        </header>
+
+        <div class="card">
+            <h2>Bot Status</h2>
+            <p>Active Bots: <span id="bot-count">Loading...</span></p>
+        </div>
+
+        <div class="card">
+            <h2>Get Pairing Code</h2>
+            <form id="get-code-form">
+                <div class="form-group">
+                    <label for="phone-number">Phone Number (e.g., 50493732693)</label>
+                    <input type="tel" id="phone-number" placeholder="Enter your number" required>
+                </div>
+                <button type="submit" id="get-code-btn">Get Code</button>
+            </form>
+            <div id="code-display" class="result-display" style="display:none;">
+                <p>Your Pairing Code:</p>
+                <pre><code id="pairing-code"></code></pre>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Set Sub-Bot Prefix</h2>
+            <form id="set-prefix-form">
+                <div class="form-group">
+                    <label for="prefix-phone-number">Sub-Bot Phone Number</label>
+                    <input type="tel" id="prefix-phone-number" placeholder="Enter sub-bot number" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-prefix">New Prefix</label>
+                    <input type="text" id="new-prefix" placeholder="e.g., ! or .michi" required>
+                </div>
+                <button type="submit">Set Prefix</button>
+            </form>
+            <div id="prefix-result" class="result-display" style="display:none;"></div>
+        </div>
+
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
