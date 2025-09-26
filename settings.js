@@ -3,7 +3,7 @@ import chalk from "chalk"
 import { fileURLToPath } from "url"
 import fs from "fs"
 
-global.botNumber = "" 
+global.botNumber = "50494547493" 
 
 global.owner = [
 // ZONA DE JIDS
