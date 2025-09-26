@@ -135,6 +135,6 @@ handler.help = ['qc']
 handler.tags = ['sticker']
 handler.command = ['qc']
 handler.register = false
-handler.coin = 3
+//handler.coin = 3
 
 export default handler
