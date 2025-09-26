@@ -75,6 +75,6 @@ handler.help = ['tiktoks'];
 handler.tags = ['buscadores'];
 handler.command = ['tiktoks', 'tiktoksearch'];
 handler.group = true;
-handler.coin = 23
+//handler.coin = 23
 
 export default handler;
